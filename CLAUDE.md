@@ -5,11 +5,17 @@
 - **Framework**: Next.js 16 with Turbopack, `output: "export"` (static HTML)
 - **Language**: TypeScript 5, React 19
 - **Styling**: Tailwind CSS 4 (`@theme inline`), globals.css design tokens
+- **Fonts**: `next/font/google` — Inter (Latin) + IBM Plex Sans Arabic (self-hosted, non-blocking)
 - **i18n**: Custom React Context (`LocaleProvider`) — English + Arabic (RTL)
 - **Testing**: Vitest 3 + Testing Library (jsdom)
-- **Deployment**: Cloudflare Pages (`npx wrangler pages deploy out`)
-- **Analytics**: Google Analytics 4 via `next/script` + consent mode
-- **Contact**: Formspree (endpoint via env var)
+- **Deployment**: Cloudflare Pages (`npx wrangler pages deploy out`) + workspace at Replit
+- **Analytics**: Google Analytics 4 (`G-66BKZ2ZEJN`) via `next/script` + consent mode + cookie banner
+- **PWA**: `/manifest.webmanifest` + `/sw.js` service worker (offline support, install to home screen)
+- **Contact**: Formspree (endpoint via env var) — falls back to mailto when unconfigured
+- **SEO**: JSON-LD `@graph` (14 valid items), sitemap.xml, robots.txt (blocks AI crawlers)
+- **Search Indexing**: Google Search Console + Bing Webmaster Tools (both verified, sitemap submitted)
+- **Security**: HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy via `public/_headers`
+- **DNS**: DNSSEC enabled (Cloudflare default)
 
 ## Commands
 
@@ -35,25 +41,39 @@ Copy `.env.example` → `.env.local` for local dev. Set in Cloudflare Pages dash
 ```
 src/
   app/
-    layout.tsx        — Root layout, metadata, fonts, Analytics
-    page.tsx          — Main SPA (all sections)
+    layout.tsx        — Root layout, metadata, next/font, manifest, viewport, Providers
+    page.tsx          — Main SPA (all sections) — wrapped by root Providers
     globals.css       — Design system tokens + utilities
     privacy/page.tsx  — Privacy policy (server component)
     terms/page.tsx    — Terms of service (server component)
     not-found.tsx     — Custom 404
-  components/         — 14 React components (all client)
+  components/         — 16 React components (all client)
+    Providers.tsx               — Wraps app with LocaleProvider + CookieBanner + SW registration
+    CookieBanner.tsx            — GDPR consent banner (calls grantConsent/denyConsent)
+    ServiceWorkerRegistration   — Registers /sw.js in production only
+    Analytics.tsx               — GA4 loader (afterInteractive, consent-mode defaults inline)
   i18n/
     index.ts          — Translation lookup + tArray()
-    LocaleProvider.tsx — Context provider with locale/dir/t/tArray
-    locales/en.json   — English translations
-    locales/ar.json   — Arabic translations
+    LocaleProvider.tsx — Context provider with locale/dir/t/tArray (lazy init + validation)
+    locales/en.json   — English translations (includes cookies block)
+    locales/ar.json   — Arabic translations (includes cookies block)
   lib/
-    gtag.ts           — GA4 typed utilities (pageView, event, consent)
+    gtag.ts           — GA4 typed utilities (pageView, event, grantConsent, denyConsent)
+    structured-data.ts — JSON-LD generators (@graph wrapper, 14 valid items)
     useReveal.ts      — IntersectionObserver scroll-reveal hook
   test/
     setup.ts          — jest-dom, IntersectionObserver + matchMedia mocks
-    home.test.tsx     — Smoke test
+    home.test.tsx     — Smoke test (wraps with <Providers>)
     i18n.test.ts      — EN/AR key parity check
+public/
+  _headers            — Cloudflare security + cache headers
+  manifest.webmanifest — PWA manifest (theme: navy/gold)
+  sw.js               — Service worker (network-first pages, cache-first hashed assets)
+  sitemap.xml         — XML sitemap (hreflang en/ar)
+  robots.txt          — Allows Google/Bing, blocks GPTBot/CCBot/Claude-Web/etc.
+  favicon.svg, logo.png, og-image.png
+scripts/
+  copy-artifacts.mjs  — Cross-platform copy out/ → artifacts/reich-elyra/dist/public
 ```
 
 ## Design System
@@ -64,6 +84,23 @@ src/
 - **Cards**: `gradient-border-card` + `hover-lift` utilities
 - **Animations**: `animate-float`, `animate-marquee`, `animate-fade-in-up`
 - **Reduced motion**: Fully supported via `@media (prefers-reduced-motion: reduce)`
+
+## Lighthouse Scores (mobile, last measured 2026-05-17)
+
+| Metric | Score |
+|--------|-------|
+| Performance | 73 → improving (next/font deployed) |
+| Accessibility | 96 |
+| Best Practices | 96 |
+| SEO | 92 |
+
+**Core Web Vitals (all green):** LCP 0.7s · CLS 0.003 · TBT 60ms · FCP 0.7s
+
+## Still pending (need user action)
+
+- **Formspree form**: register at formspree.io, set `NEXT_PUBLIC_FORMSPREE_ENDPOINT`
+- **Email mailbox**: configure Google Workspace or Zoho for `info@reichelyra.com`
+- **Social accounts**: LinkedIn, Twitter/X for the company — then add URLs to `structured-data.ts` `sameAs` array
 
 ## Important note
 
