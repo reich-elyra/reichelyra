@@ -107,14 +107,10 @@ export const metadata: Metadata = {
     },
   },
 
-  // ── Verification (add IDs when available) ─────────────────────────────
-  // verification: {
-  //   google: "YOUR_GOOGLE_SEARCH_CONSOLE_ID",
-  //   yandex: "YOUR_YANDEX_ID",
-  //   other: {
-  //     "msvalidate.01": "YOUR_BING_ID",
-  //   },
-  // },
+  // ── Verification ───────────────────────────────────────────────────────
+  verification: {
+    google: "5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY",
+  },
 
   // ── Icons ─────────────────────────────────────────────────────────────
   icons: {

@@ -30,7 +30,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     image: `${SITE_URL}/og-image.png`,
     description:
       "Egyptian investment and technology company specializing in Artificial Intelligence, LegalTech, and cross-border innovation between Egypt and Spain.",
-    foundingDate: "2024",
+    foundingDate: "2025",
     founder: {
       "@type": "Person",
       name: "Reich Elyra",
@@ -87,14 +87,7 @@ export function websiteJsonLd(): Record<string, unknown> {
     url: SITE_URL,
     publisher: { "@id": `${SITE_URL}/#organization` },
     inLanguage: ["en", "ar"],
-    potentialAction: {
-      "@type": "SearchAction",
-      target: {
-        "@type": "EntryPoint",
-        urlTemplate: `${SITE_URL}/?q={search_term_string}`,
-      },
-      "query-input": "required name=search_term_string",
-    },
+    // SearchAction omitted — site has no search functionality
   };
 }
 
@@ -209,10 +202,7 @@ export function productJsonLd(): Record<string, unknown> {
     operatingSystem: "Web",
     offers: {
       "@type": "Offer",
-      availability: "https://schema.org/InStock",
-      priceCurrency: "USD",
-      price: "0",
-      priceValidUntil: "2027-12-31",
+      availability: "https://schema.org/PreOrder",
       description: "Contact for enterprise pricing",
     },
     creator: { "@id": `${SITE_URL}/#organization` },
@@ -254,8 +244,14 @@ export function breadcrumbJsonLd(
 // Aggregate: all homepage structured data in one array
 // ---------------------------------------------------------------------------
 
-export function homepageStructuredData(): Record<string, unknown>[] {
-  return [
+export function homepageStructuredData(): Record<string, unknown> {
+  // Strip per-item @context — the @graph wrapper provides it once.
+  const stripContext = (obj: Record<string, unknown>): Record<string, unknown> => {
+    const { "@context": _ctx, ...rest } = obj;
+    return rest;
+  };
+
+  const items = [
     organizationJsonLd(),
     websiteJsonLd(),
     webPageJsonLd({
@@ -267,4 +263,9 @@ export function homepageStructuredData(): Record<string, unknown>[] {
     productJsonLd(),
     ...servicesJsonLd(),
   ];
+
+  return {
+    "@context": "https://schema.org",
+    "@graph": items.map(stripContext),
+  };
 }

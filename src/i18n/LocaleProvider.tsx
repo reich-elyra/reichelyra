@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import { Locale, t as translate, tArray as translateArray, getDirection, defaultLocale } from "@/i18n";
 
 interface LocaleContextValue {
@@ -14,16 +14,24 @@ interface LocaleContextValue {
 const LocaleContext = createContext<LocaleContextValue | null>(null);
 
 const STORAGE_KEY = "locale";
+const VALID_LOCALES: ReadonlySet<string> = new Set<Locale>(["en", "ar"]);
+
+function isValidLocale(value: unknown): value is Locale {
+  return typeof value === "string" && VALID_LOCALES.has(value);
+}
+
+function readStoredLocale(): Locale {
+  if (typeof window === "undefined") return defaultLocale;
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return isValidLocale(stored) ? stored : defaultLocale;
+  } catch {
+    return defaultLocale;
+  }
+}
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(defaultLocale);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      setLocaleState(stored as Locale);
-    }
-  }, []);
+  const [locale, setLocaleState] = useState<Locale>(readStoredLocale);
 
   const setLocale = useCallback((newLocale: Locale) => {
     setLocaleState(newLocale);

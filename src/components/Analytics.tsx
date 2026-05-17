@@ -33,8 +33,14 @@ export default function Analytics(): React.ReactNode {
 
   return (
     <>
-      {/* Consent-mode defaults — analytics denied until explicit grant. */}
-      <Script id="ga-consent-defaults" strategy="beforeInteractive">
+      {/* Load gtag.js — consent defaults are set inline before this fires. */}
+      <Script
+        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+        strategy="afterInteractive"
+      />
+
+      {/* Consent-mode defaults + GA4 init — single afterInteractive block. */}
+      <Script id="ga-init" strategy="afterInteractive">
         {`
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
@@ -43,20 +49,6 @@ export default function Analytics(): React.ReactNode {
             ad_storage: 'denied',
             wait_for_update: 500
           });
-        `}
-      </Script>
-
-      {/* Load gtag.js asynchronously after hydration. */}
-      <Script
-        src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-        strategy="afterInteractive"
-      />
-
-      {/* Initialise GA4 measurement. */}
-      <Script id="ga-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
           gtag('js', new Date());
           gtag('config', '${GA_MEASUREMENT_ID}', {
             page_path: window.location.pathname,
