@@ -14,7 +14,8 @@ const navLinks = [
 ];
 
 export default function Navbar() {
-  const { t, locale, setLocale } = useLocale();
+  const { t, locale, setLocale, dir } = useLocale();
+  const isRtl = dir === "rtl";
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("");
@@ -38,7 +39,7 @@ export default function Navbar() {
           }
         });
       },
-      { threshold: 0.3, rootMargin: "-80px 0px -40% 0px" }
+      { threshold: 0, rootMargin: "-40% 0px -55% 0px" }
     );
 
     sections.forEach((section) => observer.observe(section));
@@ -59,6 +60,9 @@ export default function Navbar() {
 
   return (
     <>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:bg-gold focus:text-navy focus:px-4 focus:py-2 focus:rounded focus:text-sm focus:font-semibold">
+        Skip to content
+      </a>
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
@@ -67,7 +71,7 @@ export default function Navbar() {
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-18">
+          <div className="flex items-center justify-between h-[4.5rem]">
             {/* Logo */}
             <a
               href="#"
@@ -120,6 +124,8 @@ export default function Navbar() {
                 onClick={() => setMobileOpen(!mobileOpen)}
                 className="lg:hidden relative w-10 h-10 flex items-center justify-center"
                 aria-label="Toggle menu"
+                aria-expanded={mobileOpen}
+                aria-controls="mobile-menu"
               >
                 <span
                   className={`absolute block w-5 h-0.5 bg-neutral-200 transition-all duration-300 ${
@@ -152,17 +158,23 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       <div
-        className={`fixed top-0 right-0 z-45 h-full w-72 bg-navy/95 backdrop-blur-2xl border-l border-white/5 transform transition-transform duration-500 ease-out lg:hidden ${
-          mobileOpen ? "translate-x-0" : "translate-x-full"
+        id="mobile-menu"
+        className={`fixed top-0 z-[45] h-full w-72 bg-navy/95 backdrop-blur-2xl border-s border-white/5 transform transition-transform duration-500 ease-out lg:hidden ${
+          isRtl ? "left-0" : "right-0"
+        } ${
+          mobileOpen
+            ? "translate-x-0"
+            : isRtl
+              ? "-translate-x-full"
+              : "translate-x-full"
         }`}
-        style={{ zIndex: 45 }}
       >
         <div className="flex flex-col pt-24 px-6 gap-2">
           {navLinks.map((link) => (
             <button
               key={link.key}
               onClick={() => handleNavClick(link.href)}
-              className={`text-left px-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
+              className={`text-start ps-4 pe-4 py-3 rounded-lg text-base font-medium transition-all duration-300 ${
                 activeSection === link.id
                   ? "text-gold bg-gold/10"
                   : "text-neutral-300 hover:text-gold hover:bg-white/5"

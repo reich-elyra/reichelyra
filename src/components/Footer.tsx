@@ -17,7 +17,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="bg-navy-dark pt-0 pb-8">
+    <footer className="bg-navy pt-0 pb-8">
       <div className="gradient-line" />
 
       <div className="container mx-auto px-6 pt-12">
@@ -28,7 +28,7 @@ export default function Footer() {
               REICH ELYRA
             </span>
           </div>
-          <p className="text-sm text-muted-foreground max-w-md">
+          <p className="text-sm text-text-muted max-w-md">
             {t("footer.tagline")}
           </p>
         </div>
@@ -38,7 +38,7 @@ export default function Footer() {
             <a
               key={link.href}
               href={link.href}
-              className="text-sm text-muted-foreground hover:text-gold transition-colors"
+              className="text-sm text-text-muted hover:text-gold transition-colors"
             >
               {link.label}
             </a>
@@ -46,14 +46,14 @@ export default function Footer() {
         </nav>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-text-muted">
             &copy; {new Date().getFullYear()} Reich Elyra. {t("footer.rights")}
           </p>
           <div className="flex gap-6">
-            <Link href="/privacy" className="text-xs text-muted-foreground hover:text-gold transition-colors">
+            <Link href="/privacy" className="text-xs text-text-muted hover:text-gold transition-colors">
               {t("footer.privacy")}
             </Link>
-            <Link href="/terms" className="text-xs text-muted-foreground hover:text-gold transition-colors">
+            <Link href="/terms" className="text-xs text-text-muted hover:text-gold transition-colors">
               {t("footer.terms")}
             </Link>
           </div>

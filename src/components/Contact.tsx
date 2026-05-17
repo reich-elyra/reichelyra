@@ -17,7 +17,7 @@ interface FormErrors {
 
 type FormStatus = "idle" | "sending" | "success" | "error";
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+const FORMSPREE_ENDPOINT = process.env.NEXT_PUBLIC_FORMSPREE_ENDPOINT;
 
 function validateEmail(email: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -38,17 +38,17 @@ export default function Contact() {
     const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Required";
+      newErrors.name = t("contact.required");
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Required";
+      newErrors.email = t("contact.required");
     } else if (!validateEmail(formData.email)) {
-      newErrors.email = "Invalid email";
+      newErrors.email = t("contact.invalidEmail");
     }
 
     if (!formData.message.trim()) {
-      newErrors.message = "Required";
+      newErrors.message = t("contact.required");
     }
 
     setErrors(newErrors);
@@ -70,7 +70,12 @@ export default function Contact() {
 
     if (!validateForm()) return;
 
+    if (!FORMSPREE_ENDPOINT) return;
+
     setStatus("sending");
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
       const response = await fetch(FORMSPREE_ENDPOINT, {
@@ -80,7 +85,10 @@ export default function Contact() {
           Accept: "application/json",
         },
         body: JSON.stringify(formData),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (response.ok) {
         setStatus("success");
@@ -88,8 +96,13 @@ export default function Contact() {
       } else {
         setStatus("error");
       }
-    } catch {
-      setStatus("error");
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === "AbortError") {
+        setStatus("error");
+      } else {
+        setStatus("error");
+      }
     }
   }
 
@@ -98,10 +111,10 @@ export default function Contact() {
       <div className="radial-glow" />
       <div className="container mx-auto px-6 relative z-10">
         <div className="text-center mb-16 reveal">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 gold-gradient">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gradient-gold">
             {t("contact.title")}
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg text-text-muted max-w-2xl mx-auto">
             {t("contact.subtitle")}
           </p>
         </div>
@@ -123,18 +136,19 @@ export default function Contact() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="text-gold"
+                    aria-hidden="true"
                   >
                     <rect width="20" height="16" x="2" y="4" rx="2" />
                     <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Email</p>
+                  <p className="text-sm text-text-muted mb-1">{t("contact.emailLabel")}</p>
                   <a
-                    href="mailto:info@reichelyra.com"
+                    href={`mailto:${t("contact.email")}`}
                     className="text-foreground hover:text-gold transition-colors"
                   >
-                    info@reichelyra.com
+                    {t("contact.email")}
                   </a>
                 </div>
               </div>
@@ -152,20 +166,21 @@ export default function Contact() {
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     className="text-gold"
+                    aria-hidden="true"
                   >
                     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" />
                     <circle cx="12" cy="10" r="3" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground mb-1">Location</p>
+                  <p className="text-sm text-text-muted mb-1">{t("contact.locationLabel")}</p>
                   <p className="text-foreground">{t("contact.location")}</p>
                 </div>
               </div>
 
               <div className="pt-4">
                 <a
-                  href="mailto:info@reichelyra.com"
+                  href={`mailto:${t("contact.email")}`}
                   className="btn-primary w-full block text-center"
                 >
                   {t("contact.cta")}
@@ -177,7 +192,7 @@ export default function Contact() {
           {/* Contact Form */}
           <div className="reveal">
             <div className="glass-card p-8 h-full">
-              {status === "success" ? (
+              {!FORMSPREE_ENDPOINT ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center space-y-4">
                     <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
@@ -192,6 +207,39 @@ export default function Contact() {
                         strokeLinecap="round"
                         strokeLinejoin="round"
                         className="text-gold"
+                        aria-hidden="true"
+                      >
+                        <rect width="20" height="16" x="2" y="4" rx="2" />
+                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                      </svg>
+                    </div>
+                    <p className="text-text-muted text-sm">
+                      {t("contact.cta")}
+                    </p>
+                    <a
+                      href={`mailto:${t("contact.email")}`}
+                      className="btn-primary inline-block"
+                    >
+                      {t("contact.email")}
+                    </a>
+                  </div>
+                </div>
+              ) : status === "success" ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-center space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-gold/10 flex items-center justify-center mx-auto">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="28"
+                        height="28"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        className="text-gold"
+                        aria-hidden="true"
                       >
                         <path d="M20 6 9 17l-5-5" />
                       </svg>
@@ -214,7 +262,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="contact-name"
-                      className="block text-sm text-muted-foreground mb-1.5"
+                      className="block text-sm text-text-muted mb-1.5"
                     >
                       {t("contact.form.name")}
                     </label>
@@ -224,7 +272,7 @@ export default function Contact() {
                       type="text"
                       value={formData.name}
                       onChange={handleChange}
-                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors ${
+                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors ${
                         errors.name
                           ? "border-red-500/60"
                           : "border-white/10 hover:border-white/20"
@@ -240,7 +288,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="contact-email"
-                      className="block text-sm text-muted-foreground mb-1.5"
+                      className="block text-sm text-text-muted mb-1.5"
                     >
                       {t("contact.form.email")}
                     </label>
@@ -250,7 +298,7 @@ export default function Contact() {
                       type="email"
                       value={formData.email}
                       onChange={handleChange}
-                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors ${
+                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors ${
                         errors.email
                           ? "border-red-500/60"
                           : "border-white/10 hover:border-white/20"
@@ -268,7 +316,7 @@ export default function Contact() {
                   <div>
                     <label
                       htmlFor="contact-message"
-                      className="block text-sm text-muted-foreground mb-1.5"
+                      className="block text-sm text-text-muted mb-1.5"
                     >
                       {t("contact.form.message")}
                     </label>
@@ -278,7 +326,7 @@ export default function Contact() {
                       rows={4}
                       value={formData.message}
                       onChange={handleChange}
-                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors resize-none ${
+                      className={`w-full bg-white/5 border rounded-lg px-4 py-2.5 text-foreground placeholder:text-text-muted/50 focus:outline-none focus:ring-2 focus:ring-gold/40 transition-colors resize-none ${
                         errors.message
                           ? "border-red-500/60"
                           : "border-white/10 hover:border-white/20"
@@ -309,7 +357,7 @@ export default function Contact() {
                   >
                     {status === "sending"
                       ? t("contact.form.sending")
-                      : t("contact.form.submit")}
+                      : t("contact.form.send")}
                   </button>
                 </form>
               )}

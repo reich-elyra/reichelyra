@@ -30,6 +30,25 @@ export function t(locale: Locale, key: string): string {
 }
 
 /**
+ * Get a translated array by dot-notation key.
+ * Example: tArray('en', 'partners.domains')
+ */
+export function tArray(locale: Locale, key: string): string[] {
+  const keys = key.split('.');
+  let result: unknown = translations[locale];
+
+  for (const k of keys) {
+    if (result && typeof result === 'object' && k in result) {
+      result = (result as Record<string, unknown>)[k];
+    } else {
+      return [];
+    }
+  }
+
+  return Array.isArray(result) ? result as string[] : [];
+}
+
+/**
  * Get the text direction for a locale.
  */
 export function getDirection(locale: Locale): 'ltr' | 'rtl' {

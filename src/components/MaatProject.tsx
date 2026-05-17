@@ -35,7 +35,7 @@ export default function MaatProject() {
               {features.map((i) => (
                 <div key={i} className="flex items-start gap-3 group">
                   <div className="mt-1 w-5 h-5 rounded-full bg-gold/10 border border-gold/30 flex items-center justify-center flex-shrink-0 group-hover:bg-gold/20 transition-colors">
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                       <path d="M2 6l3 3 5-5" stroke="#c9a84c" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                     </svg>
                   </div>

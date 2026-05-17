@@ -1,31 +1,42 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useLocale } from "@/i18n/LocaleProvider";
 
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
+function AnimatedCounter({ end, suffix = "", duration = 2000 }: { end: number; suffix?: string; duration?: number }) {
   const [count, setCount] = useState(0);
+  const ref = useRef<HTMLSpanElement>(null);
+  const hasAnimated = useRef(false);
 
   useEffect(() => {
-    let frame: number;
-    const duration = 2000;
-    const start = performance.now();
+    const el = ref.current;
+    if (!el) return;
 
-    const animate = (now: number) => {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.floor(eased * target));
-      if (progress < 1) frame = requestAnimationFrame(animate);
-    };
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated.current) {
+          hasAnimated.current = true;
+          const start = performance.now();
+          const animate = (now: number) => {
+            const elapsed = now - start;
+            const progress = Math.min(elapsed / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(eased * end));
+            if (progress < 1) requestAnimationFrame(animate);
+          };
+          requestAnimationFrame(animate);
+        }
+      },
+      { threshold: 0.5 }
+    );
 
-    frame = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(frame);
-  }, [target]);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [end, duration]);
 
   return (
-    <span className="counter-value">
+    <span ref={ref} className="counter-value">
       {count}{suffix}
     </span>
   );
@@ -94,7 +105,7 @@ export default function Hero() {
         >
           <a href="#services" className="btn-primary">
             {t("hero.cta")}
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
           </a>
@@ -110,19 +121,19 @@ export default function Hero() {
         >
           <div className="text-center">
             <div className="text-2xl sm:text-3xl font-bold text-gold mb-1">
-              <AnimatedCounter target={6} suffix="+" />
+              <AnimatedCounter end={6} suffix="+" />
             </div>
             <div className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider">{t("hero.stats.sectors")}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl sm:text-3xl font-bold text-gold mb-1">
-              <AnimatedCounter target={2} />
+              <AnimatedCounter end={2} />
             </div>
             <div className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider">{t("hero.stats.countries")}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl sm:text-3xl font-bold text-gold mb-1">
-              <AnimatedCounter target={3} suffix="+" />
+              <AnimatedCounter end={3} suffix="+" />
             </div>
             <div className="text-xs sm:text-sm text-neutral-500 uppercase tracking-wider">{t("hero.stats.platforms")}</div>
           </div>

@@ -1,12 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { Locale, t as translate, getDirection, defaultLocale } from "@/i18n";
+import { Locale, t as translate, tArray as translateArray, getDirection, defaultLocale } from "@/i18n";
 
 interface LocaleContextValue {
   locale: Locale;
   setLocale: (locale: Locale) => void;
   t: (key: string) => string;
+  tArray: (key: string) => string[];
   dir: "ltr" | "rtl";
 }
 
@@ -34,10 +35,15 @@ export function LocaleProvider({ children }: { children: React.ReactNode }) {
     [locale]
   );
 
+  const tArray = useCallback(
+    (key: string) => translateArray(locale, key),
+    [locale]
+  );
+
   const dir = getDirection(locale);
 
   return (
-    <LocaleContext value={{ locale, setLocale, t, dir }}>
+    <LocaleContext value={{ locale, setLocale, t, tArray, dir }}>
       {children}
     </LocaleContext>
   );

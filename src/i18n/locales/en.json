@@ -139,22 +139,28 @@
     ]
   },
   "partners": {
-    "title": "Domains of Expertise"
+    "title": "Domains of Expertise",
+    "domains": ["Artificial Intelligence", "Legal Technology", "Cross-Border Investment", "Cloud Infrastructure", "SaaS Platforms", "Strategic Consulting", "Digital Transformation", "Regulatory Compliance"]
   },
   "contact": {
     "title": "Contact Us",
     "subtitle": "Connect with our team to explore partnership and investment opportunities",
-    "email": "contact@reichelyra.com",
+    "email": "info@reichelyra.com",
+    "emailLabel": "Email",
     "location": "Maadi, Cairo, Arab Republic of Egypt",
+    "locationLabel": "Location",
+    "required": "Required",
+    "invalidEmail": "Invalid email address",
     "cta": "Schedule a Consultation",
     "form": {
       "name": "Full Name",
       "email": "Email Address",
       "message": "Your Message",
       "submit": "Send Message",
+      "sending": "Sending...",
+      "send": "Send Message",
       "success": "Thank you! Your message has been sent successfully. We'll get back to you soon.",
-      "error": "Something went wrong. Please try again or email us directly.",
-      "sending": "Sending..."
+      "error": "Something went wrong. Please try again or email us directly."
     }
   },
   "footer": {

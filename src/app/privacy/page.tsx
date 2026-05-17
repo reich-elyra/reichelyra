@@ -1,11 +1,23 @@
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy | Reich Elyra",
+  description: "Reich Elyra privacy policy - how we collect, use, and protect your data.",
+};
 
 export default function PrivacyPolicy() {
   return (
     <div className="min-h-screen grid-bg relative overflow-hidden">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-navy/80 backdrop-blur-md border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+          <a href="/" className="text-gold font-semibold">Reich Elyra</a>
+          <a href="/" className="text-sm text-neutral-400 hover:text-gold transition-colors">&larr; Back to Home</a>
+        </div>
+      </header>
       <div className="radial-glow absolute top-0 left-1/2 -translate-x-1/2 w-full h-[600px] pointer-events-none" />
 
-      <div className="container mx-auto px-6 py-20 relative z-10">
+      <div className="container mx-auto px-6 pt-32 pb-20 relative z-10">
         <div className="max-w-3xl mx-auto">
           {/* Header */}
           <div className="mb-12 text-center">

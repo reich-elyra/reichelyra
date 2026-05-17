@@ -22,7 +22,7 @@ export default function Vision() {
           <div className="gradient-border-card hover-lift reveal">
             <div className="flex items-center gap-3 mb-6">
               <div className="icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gold">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gold" aria-hidden="true">
                   <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
@@ -34,7 +34,7 @@ export default function Vision() {
             </p>
             <div className="mt-6 pt-6 border-t border-white/5">
               <div className="flex items-center gap-2 text-sm text-gold/80">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M12 2l2.09 6.26L21 9.27l-5 3.64L17.18 20 12 16.77 6.82 20 8 12.91l-5-3.64 6.91-1.01L12 2z" />
                 </svg>
                 {t("vision.visionHighlight")}
@@ -46,7 +46,7 @@ export default function Vision() {
           <div className="gradient-border-card hover-lift reveal">
             <div className="flex items-center gap-3 mb-6">
               <div className="icon-box">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gold">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-gold" aria-hidden="true">
                   <circle cx="12" cy="12" r="10" />
                   <circle cx="12" cy="12" r="6" />
                   <circle cx="12" cy="12" r="2" />
@@ -59,7 +59,7 @@ export default function Vision() {
             </p>
             <div className="mt-6 pt-6 border-t border-white/5">
               <div className="flex items-center gap-2 text-sm text-gold/80">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
                   <path d="M22 4 12 14.01l-3-3" />
                 </svg>

@@ -33,7 +33,7 @@ function PageContent() {
     <>
       <ScrollProgress />
       <Navbar />
-      <main>
+      <main id="main-content">
         <Hero />
         <About />
         <Services />

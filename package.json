@@ -16,6 +16,7 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.5",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^16.0.0",
@@ -30,9 +31,8 @@
     "typescript": "^5",
     "vitest": "^3.0.0"
   },
-  "description": "This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).",
-  "main": "index.js",
+  "description": "Reich Elyra corporate website — AI, LegalTech, and Investment services",
   "keywords": [],
-  "author": "",
+  "author": "Reich Elyra",
   "license": "ISC"
 }

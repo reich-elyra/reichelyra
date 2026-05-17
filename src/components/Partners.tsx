@@ -2,19 +2,10 @@
 
 import { useLocale } from "@/i18n/LocaleProvider";
 
-const domains = [
-  "Artificial Intelligence",
-  "Legal Technology",
-  "Cloud Infrastructure",
-  "RegTech",
-  "Investment Advisory",
-  "Enterprise SaaS",
-  "Cross-Border Commerce",
-  "Digital Transformation",
-];
-
 export default function Partners() {
-  const { t } = useLocale();
+  const { t, tArray } = useLocale();
+
+  const domains = tArray("partners.domains");
 
   return (
     <section className="py-16 overflow-hidden border-y border-white/5">
@@ -23,7 +14,7 @@ export default function Partners() {
           {t("partners.title")}
         </p>
       </div>
-      <div className="relative">
+      <div className="relative" aria-hidden="true">
         <div className="flex animate-marquee whitespace-nowrap">
           {[...domains, ...domains].map((domain, i) => (
             <span
