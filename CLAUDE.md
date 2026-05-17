@@ -33,6 +33,7 @@ npx wrangler pages deploy out --project-name=reichelyra  # Deploy
 |----------|---------|
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Google Analytics 4 measurement ID (e.g. `G-XXXXXXXXXX`) |
 | `NEXT_PUBLIC_FORMSPREE_ENDPOINT` | Formspree form URL (e.g. `https://formspree.io/f/xAbCdEfG`) |
+| `NEXT_PUBLIC_SENTRY_DSN` | Optional Sentry browser DSN — when set, `errorLogger` reports to Sentry |
 
 Copy `.env.example` → `.env.local` for local dev. Set in Cloudflare Pages dashboard for production.
 
@@ -44,9 +45,11 @@ src/
     layout.tsx        — Root layout, metadata, next/font, manifest, viewport, Providers
     page.tsx          — Main SPA (all sections) — wrapped by root Providers
     globals.css       — Design system tokens + utilities
+    maat/page.tsx     — MAAT product page (capabilities, use cases, FAQ, Product+FAQPage JSON-LD)
+    about/page.tsx    — Company story + founder bio (Ahmed Madi Farag Zeidan)
     privacy/page.tsx  — Privacy policy (server component)
     terms/page.tsx    — Terms of service (server component)
-    not-found.tsx     — Custom 404
+    not-found.tsx     — Custom 404 with quick-nav links
   components/         — 16 React components (all client)
     Providers.tsx               — Wraps app with LocaleProvider + CookieBanner + SW registration
     CookieBanner.tsx            — GDPR consent banner (calls grantConsent/denyConsent)
@@ -59,7 +62,8 @@ src/
     locales/ar.json   — Arabic translations (includes cookies block)
   lib/
     gtag.ts           — GA4 typed utilities (pageView, event, grantConsent, denyConsent)
-    structured-data.ts — JSON-LD generators (@graph wrapper, 14 valid items)
+    structured-data.ts — JSON-LD generators (Organization, Service, Product, FAQPage, Breadcrumb)
+    errorLogger.ts    — Centralized error reporting (Sentry-ready, set NEXT_PUBLIC_SENTRY_DSN)
     useReveal.ts      — IntersectionObserver scroll-reveal hook
   test/
     setup.ts          — jest-dom, IntersectionObserver + matchMedia mocks
