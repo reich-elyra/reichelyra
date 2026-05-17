@@ -1,3 +1,48 @@
+# Reich Elyra — reichelyra.com
+# AI, LegalTech & Investment
+
 User-agent: *
 Allow: /
+Disallow: /_next/
+Disallow: /api/
+
+# Crawl budget
+Crawl-delay: 1
+
+# Sitemaps
 Sitemap: https://reichelyra.com/sitemap.xml
+
+# Google
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# AI training crawlers — opt out
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
+
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: PerplexityBot
+Disallow: /

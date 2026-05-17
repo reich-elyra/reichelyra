@@ -1,13 +1,49 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { breadcrumbJsonLd, webPageJsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Reich Elyra",
-  description: "Reich Elyra privacy policy - how we collect, use, and protect your data.",
+  title: "Privacy Policy",
+  description:
+    "Reich Elyra privacy policy — how we collect, use, and safeguard your personal data under Egyptian Investment Law No. 72/2017.",
+  alternates: {
+    canonical: "/privacy",
+  },
+  openGraph: {
+    title: "Privacy Policy | Reich Elyra",
+    description:
+      "How Reich Elyra collects, uses, and protects your data.",
+    url: "https://reichelyra.com/privacy",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
+const privacyStructuredData = [
+  webPageJsonLd({
+    name: "Privacy Policy — Reich Elyra",
+    description:
+      "Reich Elyra privacy policy — how we collect, use, and safeguard your personal data.",
+    url: "https://reichelyra.com/privacy",
+  }),
+  breadcrumbJsonLd([
+    { name: "Home", url: "https://reichelyra.com" },
+    { name: "Privacy Policy", url: "https://reichelyra.com/privacy" },
+  ]),
+];
 
 export default function PrivacyPolicy() {
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(privacyStructuredData),
+        }}
+      />
     <div className="min-h-screen grid-bg relative overflow-hidden">
       <header className="fixed top-0 left-0 right-0 z-50 bg-navy/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -207,5 +243,6 @@ export default function PrivacyPolicy() {
         </div>
       </div>
     </div>
+    </>
   );
 }

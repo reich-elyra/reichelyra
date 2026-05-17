@@ -1,13 +1,49 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { breadcrumbJsonLd, webPageJsonLd } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: "Terms of Service | Reich Elyra",
-  description: "Reich Elyra terms of service - legal terms governing the use of our services.",
+  title: "Terms of Service",
+  description:
+    "Reich Elyra terms of service — legal terms and conditions governing the use of our website and services under Egyptian law.",
+  alternates: {
+    canonical: "/terms",
+  },
+  openGraph: {
+    title: "Terms of Service | Reich Elyra",
+    description:
+      "Legal terms governing the use of Reich Elyra services.",
+    url: "https://reichelyra.com/terms",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
+const termsStructuredData = [
+  webPageJsonLd({
+    name: "Terms of Service — Reich Elyra",
+    description:
+      "Legal terms and conditions governing the use of Reich Elyra website and services.",
+    url: "https://reichelyra.com/terms",
+  }),
+  breadcrumbJsonLd([
+    { name: "Home", url: "https://reichelyra.com" },
+    { name: "Terms of Service", url: "https://reichelyra.com/terms" },
+  ]),
+];
 
 export default function TermsOfService() {
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(termsStructuredData),
+        }}
+      />
     <div className="min-h-screen grid-bg relative overflow-hidden">
       <header className="fixed top-0 left-0 right-0 z-50 bg-navy/80 backdrop-blur-md border-b border-white/5">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -215,5 +251,6 @@ export default function TermsOfService() {
         </div>
       </div>
     </div>
+    </>
   );
 }
