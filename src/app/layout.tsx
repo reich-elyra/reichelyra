@@ -145,8 +145,23 @@ export const metadata: Metadata = {
     apple: "/logo.png",
   },
 
+  // ── PWA Manifest ──────────────────────────────────────────────────────
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Reich Elyra",
+    statusBarStyle: "black-translucent",
+  },
+
   // ── Other ─────────────────────────────────────────────────────────────
   category: "technology",
+};
+
+// Theme color for browser chrome (mobile address bar)
+export const viewport = {
+  themeColor: "#030712",
+  width: "device-width",
+  initialScale: 1,
 };
 
 // ---------------------------------------------------------------------------
