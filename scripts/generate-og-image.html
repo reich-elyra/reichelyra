@@ -1,0 +1,110 @@
+<!--
+  OG Image Generator for Reich Elyra
+  ====================================
+
+  This HTML file renders a 1200x630 Open Graph image.
+
+  To generate the final PNG:
+  1. Open this file in a browser
+  2. Use browser DevTools to set viewport to 1200x630
+  3. Take a full-page screenshot (Ctrl+Shift+P > "Capture full size screenshot" in Chrome)
+  4. Save as public/og-image.png
+
+  Alternatively, use a CLI tool:
+    npx playwright screenshot --viewport-size="1200,630" scripts/generate-og-image.html public/og-image.png
+
+  Or with Puppeteer:
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1200, height: 630 });
+    await page.goto('file:///path/to/scripts/generate-og-image.html');
+    await page.screenshot({ path: 'public/og-image.png' });
+    await browser.close();
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=1200"/>
+  <title>OG Image - Reich Elyra</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 1200px;
+      height: 630px;
+      overflow: hidden;
+    }
+
+    body {
+      background: #030712;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      position: relative;
+    }
+
+    .border-frame {
+      position: absolute;
+      top: 40px;
+      left: 40px;
+      right: 40px;
+      bottom: 40px;
+      border: 1px solid rgba(201, 168, 76, 0.3);
+      border-radius: 8px;
+      pointer-events: none;
+    }
+
+    .title {
+      font-size: 72px;
+      font-weight: 700;
+      letter-spacing: 8px;
+      background: linear-gradient(135deg, #f5d778 0%, #c9a84c 50%, #a07c2a 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 24px;
+    }
+
+    .tagline {
+      font-size: 28px;
+      font-weight: 300;
+      color: #9ca3af;
+      letter-spacing: 4px;
+      margin-bottom: 40px;
+    }
+
+    .divider {
+      width: 300px;
+      height: 1px;
+      background: rgba(201, 168, 76, 0.5);
+      margin-bottom: 40px;
+    }
+
+    .domain {
+      position: absolute;
+      bottom: 60px;
+      font-size: 18px;
+      font-weight: 400;
+      color: #6b7280;
+      letter-spacing: 2px;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap" rel="stylesheet"/>
+</head>
+<body>
+  <div class="border-frame"></div>
+  <h1 class="title">REICH ELYRA</h1>
+  <p class="tagline">AI | LegalTech | Investment</p>
+  <div class="divider"></div>
+  <span class="domain">reichelyra.com</span>
+</body>
+</html>

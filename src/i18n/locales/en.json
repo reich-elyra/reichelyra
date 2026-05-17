@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "services": "Services",
+    "vision": "Vision",
+    "maat": "MAAT",
+    "innovation": "Innovation",
+    "contact": "Contact"
+  },
+  "hero": {
+    "title": "Building the Future of Investment & Technology",
+    "subtitle": "Reich Elyra is an Egyptian investment and technology company bridging innovation between Egypt and Spain across AI, LegalTech, Infrastructure, and SaaS.",
+    "cta": "Explore Our Vision",
+    "tagline": "Transformation Through Intelligence"
+  },
+  "about": {
+    "title": "About Reich Elyra",
+    "description": "Reich Elyra is a limited liability company registered under Egypt's Investment Law 72/2017, operating at the intersection of artificial intelligence, legal technology, and cross-border investment. Founded by Ahmed Madi Farag Zeidan, we are committed to delivering enterprise-grade solutions that drive transformation across sectors.",
+    "founded": "Founded in Cairo, Egypt",
+    "location": "Maadi, Cairo, Arab Republic of Egypt",
+    "legalEntity": "Limited Liability Company (LLC)",
+    "investmentLaw": "Registered under Investment Law 72/2017"
+  },
+  "services": {
+    "title": "Our Services",
+    "subtitle": "Comprehensive solutions spanning technology, investment, and infrastructure",
+    "ai": {
+      "title": "Artificial Intelligence",
+      "desc": "Advanced AI systems engineered for enterprise deployment, from natural language processing to predictive analytics and intelligent automation."
+    },
+    "legaltech": {
+      "title": "Legal Technology",
+      "desc": "Next-generation legal platforms that streamline compliance, contract intelligence, and regulatory navigation for organizations operating across jurisdictions."
+    },
+    "investment": {
+      "title": "Investment Advisory",
+      "desc": "Strategic investment facilitation between Egypt and Spain, leveraging bilateral frameworks and Investment Law 72/2017 incentives for cross-border ventures."
+    },
+    "infrastructure": {
+      "title": "Infrastructure Development",
+      "desc": "End-to-end infrastructure solutions encompassing digital transformation, cloud architecture, and scalable systems for emerging markets."
+    },
+    "saas": {
+      "title": "Software as a Service",
+      "desc": "Enterprise SaaS platforms built for scale, security, and performance, serving clients across the MENA region and Southern Europe."
+    },
+    "consulting": {
+      "title": "Strategic Consulting",
+      "desc": "High-level advisory services for organizations navigating regulatory landscapes, market entry strategies, and technology adoption in Egypt and Spain."
+    }
+  },
+  "vision": {
+    "title": "Vision & Mission",
+    "vision": "Our Vision",
+    "mission": "Our Mission",
+    "visionText": "To be the definitive bridge for innovation and investment between Egypt and the European Union, creating lasting value through technology that transforms industries and empowers economies.",
+    "missionText": "To deliver world-class AI, LegalTech, and SaaS solutions that enable organizations to operate with intelligence, compliance, and competitive advantage in an interconnected global market."
+  },
+  "maat": {
+    "title": "MAAT Platform",
+    "subtitle": "AI-Powered Legal Intelligence",
+    "description": "MAAT is our flagship AI-driven legal technology platform, named after the ancient Egyptian principle of truth, justice, and order. It delivers intelligent contract analysis, regulatory compliance automation, and jurisdictional risk assessment for enterprises operating across borders.",
+    "features": [
+      "Intelligent contract analysis and clause extraction powered by large language models",
+      "Automated regulatory compliance monitoring across Egyptian and EU frameworks",
+      "Jurisdictional risk scoring and cross-border legal harmonization",
+      "Predictive litigation analytics and dispute resolution intelligence"
+    ]
+  },
+  "innovation": {
+    "title": "Innovation Hub",
+    "subtitle": "Where Ancient Wisdom Meets Modern Intelligence",
+    "description": "Reich Elyra operates at the frontier of technological innovation, channeling Egypt's millennia-old legacy of engineering and governance into modern solutions that serve a global market.",
+    "pillars": [
+      {
+        "title": "Cross-Border Intelligence",
+        "desc": "Proprietary frameworks that enable seamless business operations between Egyptian and European regulatory environments."
+      },
+      {
+        "title": "AI-First Architecture",
+        "desc": "Every platform we build is designed with artificial intelligence at its core, ensuring adaptive, learning systems that evolve with market demands."
+      },
+      {
+        "title": "Regulatory Technology",
+        "desc": "Automated compliance engines that navigate the complexity of Investment Law 72/2017 and EU directives with precision and speed."
+      },
+      {
+        "title": "Scalable Infrastructure",
+        "desc": "Cloud-native, enterprise-grade infrastructure designed for the demands of MENA and European markets at scale."
+      }
+    ]
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Connect with our team to explore partnership and investment opportunities",
+    "email": "contact@reichelyra.com",
+    "location": "Maadi, Cairo, Arab Republic of Egypt",
+    "cta": "Schedule a Consultation",
+    "form": {
+      "name": "Full Name",
+      "email": "Email Address",
+      "message": "Your Message",
+      "submit": "Send Message",
+      "success": "Thank you! Your message has been sent successfully. We'll get back to you soon.",
+      "error": "Something went wrong. Please try again or email us directly.",
+      "sending": "Sending..."
+    }
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "tagline": "Transformation Through Intelligence",
+    "legal": "Legal Notice",
+    "privacy": "Privacy Policy",
+    "terms": "Terms of Service"
+  },
+  "common": {
+    "learnMore": "Learn More",
+    "getStarted": "Get Started",
+    "contactUs": "Contact Us",
+    "language": "Language"
+  }
+}

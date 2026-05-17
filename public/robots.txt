@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://reichelyra.com/sitemap.xml

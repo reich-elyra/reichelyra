@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="4" fill="#030712"/>
+  <!-- Scarab body -->
+  <ellipse cx="16" cy="17" rx="5" ry="6" fill="#c9a84c"/>
+  <!-- Scarab head -->
+  <circle cx="16" cy="10" r="3" fill="#c9a84c"/>
+  <!-- Wing division line -->
+  <line x1="16" y1="12" x2="16" y2="23" stroke="#030712" stroke-width="0.8"/>
+  <!-- Left wing detail -->
+  <path d="M11 17 Q13 14 16 12" fill="none" stroke="#030712" stroke-width="0.6"/>
+  <!-- Right wing detail -->
+  <path d="M21 17 Q19 14 16 12" fill="none" stroke="#030712" stroke-width="0.6"/>
+  <!-- Left horn/antenna -->
+  <path d="M14 8 Q12 5 10 4" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Right horn/antenna -->
+  <path d="M18 8 Q20 5 22 4" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Left leg hints -->
+  <path d="M11.5 15 L9 13" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M11 17 L8.5 17" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M11.5 19 L9 21" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+  <!-- Right leg hints -->
+  <path d="M20.5 15 L23 13" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M21 17 L23.5 17" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+  <path d="M20.5 19 L23 21" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>
+</svg>
