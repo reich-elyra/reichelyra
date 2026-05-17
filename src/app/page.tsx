@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { LocaleProvider, useLocale } from "@/i18n/LocaleProvider";
+import { useLocale } from "@/i18n/LocaleProvider";
 import useReveal from "@/lib/useReveal";
 import ScrollProgress from "@/components/ScrollProgress";
 import BackToTop from "@/components/BackToTop";
@@ -16,7 +16,7 @@ import Innovation from "@/components/Innovation";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
 
-function PageContent() {
+export default function Home() {
   const { locale, dir } = useLocale();
   useReveal();
 
@@ -25,8 +25,8 @@ function PageContent() {
     document.documentElement.dir = dir;
     document.body.style.fontFamily =
       dir === "rtl"
-        ? "'IBM Plex Sans Arabic', 'Noto Sans Arabic', sans-serif"
-        : "'Inter', system-ui, sans-serif";
+        ? "var(--font-ibm-arabic), 'Noto Sans Arabic', sans-serif"
+        : "var(--font-inter), system-ui, sans-serif";
   }, [locale, dir]);
 
   return (
@@ -46,13 +46,5 @@ function PageContent() {
       <Footer />
       <BackToTop />
     </>
-  );
-}
-
-export default function Home() {
-  return (
-    <LocaleProvider>
-      <PageContent />
-    </LocaleProvider>
   );
 }

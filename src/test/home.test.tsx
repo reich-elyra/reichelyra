@@ -1,10 +1,15 @@
 import { describe, it, expect } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render } from '@testing-library/react'
 import Home from '@/app/page'
+import Providers from '@/components/Providers'
 
 describe('Home page', () => {
   it('renders without crashing', () => {
-    render(<Home />)
+    render(
+      <Providers>
+        <Home />
+      </Providers>
+    )
     expect(document.querySelector('main')).toBeInTheDocument()
   })
 })

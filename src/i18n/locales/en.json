@@ -175,5 +175,12 @@
     "getStarted": "Get Started",
     "contactUs": "Contact Us",
     "language": "Language"
+  },
+  "cookies": {
+    "title": "We value your privacy",
+    "body": "We use analytics cookies to understand how visitors interact with our site. Your data helps us improve. You can change your choice anytime.",
+    "learnMore": "Learn more",
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }

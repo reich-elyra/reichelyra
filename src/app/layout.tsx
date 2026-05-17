@@ -1,7 +1,29 @@
 import type { Metadata } from "next";
+import { Inter, IBM_Plex_Sans_Arabic } from "next/font/google";
 import "./globals.css";
 import Analytics from "@/components/Analytics";
+import Providers from "@/components/Providers";
 import { homepageStructuredData } from "@/lib/structured-data";
+
+// ---------------------------------------------------------------------------
+// Fonts — self-hosted via next/font (non-blocking, instant)
+// ---------------------------------------------------------------------------
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  variable: "--font-inter",
+  preload: true,
+});
+
+const ibmPlexArabic = IBM_Plex_Sans_Arabic({
+  subsets: ["arabic"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+  variable: "--font-ibm-arabic",
+  preload: false, // Loaded on Arabic locale only
+});
 
 // ---------------------------------------------------------------------------
 // Global SEO Metadata
@@ -110,6 +132,9 @@ export const metadata: Metadata = {
   // ── Verification ───────────────────────────────────────────────────────
   verification: {
     google: "5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY",
+    other: {
+      "msvalidate.01": "9AD443EE49AB5ED312B22A7A9706273D",
+    },
   },
 
   // ── Icons ─────────────────────────────────────────────────────────────
@@ -134,21 +159,15 @@ interface RootLayoutProps {
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${ibmPlexArabic.variable}`}
+    >
       <head>
         {/* ── Resource hints ────────────────────────────────────────── */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link
-          rel="preconnect"
-          href="https://fonts.gstatic.com"
-          crossOrigin="anonymous"
-        />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap"
-          rel="stylesheet"
-        />
 
         {/* ── JSON-LD Structured Data ───────────────────────────────── */}
         <script
@@ -160,7 +179,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
       </head>
       <body className="noise-overlay">
         <Analytics />
-        {children}
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
