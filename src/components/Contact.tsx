@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useLocale } from "@/i18n/LocaleProvider";
+import { logError } from "@/lib/errorLogger";
 
 interface FormData {
   name: string;
@@ -94,15 +95,19 @@ export default function Contact() {
         setStatus("success");
         setFormData({ name: "", email: "", message: "" });
       } else {
+        logError(new Error(`Formspree ${response.status}`), {
+          area: "contact-form",
+          extra: { status: response.status },
+        });
         setStatus("error");
       }
     } catch (err) {
       clearTimeout(timeoutId);
-      if (err instanceof Error && err.name === "AbortError") {
-        setStatus("error");
-      } else {
-        setStatus("error");
-      }
+      logError(err, {
+        area: "contact-form",
+        extra: { aborted: err instanceof Error && err.name === "AbortError" },
+      });
+      setStatus("error");
     }
   }
 

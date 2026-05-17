@@ -182,5 +182,122 @@
     "learnMore": "Learn more",
     "accept": "Accept",
     "decline": "Decline"
+  },
+  "maatPage": {
+    "metaTitle": "MAAT Platform — AI-Powered Legal Intelligence",
+    "metaDescription": "MAAT is Reich Elyra's flagship AI-driven legal technology platform. Intelligent contract analysis, automated regulatory compliance, jurisdictional risk scoring, and predictive litigation analytics for cross-border enterprises.",
+    "backHome": "Back to Home",
+    "hero": {
+      "badge": "Flagship Product",
+      "title": "MAAT Platform",
+      "tagline": "Where Ancient Wisdom Meets Modern Intelligence",
+      "subtitle": "Named after the ancient Egyptian principle of truth, justice, and order — MAAT applies frontier AI to the practice of law, compliance, and cross-border governance.",
+      "ctaPrimary": "Request Early Access",
+      "ctaSecondary": "Talk to the Team"
+    },
+    "stats": {
+      "accuracy": "Contract clause accuracy",
+      "jurisdictions": "Jurisdictions supported",
+      "speed": "Average analysis time",
+      "languages": "Supported languages"
+    },
+    "capabilities": {
+      "title": "Built for the cross-border legal stack",
+      "subtitle": "Four engines, one platform — designed for enterprises operating between Egypt, the EU, and the wider MENA region.",
+      "items": [
+        {
+          "title": "Contract Intelligence",
+          "description": "Extract obligations, parties, key dates, and risk clauses from contracts in seconds. Trained on hundreds of thousands of cross-border commercial agreements."
+        },
+        {
+          "title": "Regulatory Compliance Engine",
+          "description": "Live monitoring of Egyptian Investment Law 72/2017, GDPR, MiCA, and EU directives — with automated alerts when changes affect your portfolio."
+        },
+        {
+          "title": "Jurisdictional Risk Scoring",
+          "description": "Quantitative risk model mapping enforcement patterns, regulator behavior, and dispute outcomes across 24 jurisdictions."
+        },
+        {
+          "title": "Predictive Litigation Analytics",
+          "description": "Forecast dispute outcomes, suggest settlement ranges, and surface precedent — grounded in real case law, not pattern-matched fluff."
+        }
+      ]
+    },
+    "useCases": {
+      "title": "Built for teams that operate across borders",
+      "items": [
+        {
+          "name": "In-house counsel at multinationals",
+          "description": "Review hundreds of vendor contracts a quarter without missing a clause or a deadline."
+        },
+        {
+          "name": "Cross-border M&A advisors",
+          "description": "Run due diligence on Egyptian and EU targets in parallel — same workspace, same risk model."
+        },
+        {
+          "name": "Compliance and RegTech teams",
+          "description": "Map every regulatory change to the policies, contracts, and processes it actually affects."
+        },
+        {
+          "name": "Investment platforms and family offices",
+          "description": "Underwrite cross-border deals with quantified legal and regulatory risk, not gut-feel."
+        }
+      ]
+    },
+    "howItWorks": {
+      "title": "How it works",
+      "steps": [
+        {
+          "number": "01",
+          "title": "Connect your document corpus",
+          "description": "Securely ingest contracts, policies, and case files from your existing systems — DMS, email, SharePoint, or upload directly."
+        },
+        {
+          "number": "02",
+          "title": "MAAT structures and indexes everything",
+          "description": "Documents are parsed, clause-mapped, entity-tagged, and indexed against the regulatory graph in under five minutes per file."
+        },
+        {
+          "number": "03",
+          "title": "Query, monitor, and decide",
+          "description": "Ask natural-language questions, set up regulatory monitors, run risk scoring on new deals — all from one workspace."
+        }
+      ]
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "items": [
+        {
+          "question": "When will MAAT be generally available?",
+          "answer": "MAAT is in private preview with a small group of design partners. General availability is planned for 2026. Request early access to be considered for the next cohort."
+        },
+        {
+          "question": "What jurisdictions does MAAT cover today?",
+          "answer": "The first release focuses on Egypt and the EU-27, with full coverage of Egyptian Investment Law 72/2017, GDPR, MiCA, DSA, and key sector-specific regulations. Additional jurisdictions are added quarterly."
+        },
+        {
+          "question": "How is MAAT priced?",
+          "answer": "MAAT is sold as an annual enterprise subscription with seat-based and document-volume tiers. Contact our team for a tailored proposal — design partners receive preferential pricing."
+        },
+        {
+          "question": "Where is the data stored?",
+          "answer": "Customer data is stored in the region of your choice (EU or MENA), encrypted at rest and in transit. MAAT supports SOC 2 controls and is being prepared for ISO 27001 audit."
+        },
+        {
+          "question": "Does MAAT replace our legal team?",
+          "answer": "No. MAAT augments lawyers and compliance professionals — it handles the high-volume mechanical work so your team can focus on judgment, strategy, and client-facing work."
+        },
+        {
+          "question": "Can MAAT be integrated with our existing DMS or CLM?",
+          "answer": "Yes. MAAT ships with connectors for the major DMS, CLM, and ERP systems, plus a REST API for custom integrations."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Want a closer look?",
+      "subtitle": "Request early access and the MAAT team will walk you through a live demo on your own documents.",
+      "primary": "Request Early Access",
+      "secondary": "Schedule a Consultation"
+    }
   }
 }

@@ -8,12 +8,12 @@ export default function Footer() {
   const { t } = useLocale();
 
   const navLinks = [
-    { label: t("nav.about"), href: "#about" },
-    { label: t("nav.services"), href: "#services" },
-    { label: t("nav.vision"), href: "#vision" },
-    { label: t("nav.maat"), href: "#maat" },
-    { label: t("nav.innovation"), href: "#innovation" },
-    { label: t("nav.contact"), href: "#contact" },
+    { label: t("nav.about"), href: "/about", external: false },
+    { label: t("nav.services"), href: "#services", external: false },
+    { label: t("nav.vision"), href: "#vision", external: false },
+    { label: "MAAT Platform", href: "/maat", external: false },
+    { label: t("nav.innovation"), href: "#innovation", external: false },
+    { label: t("nav.contact"), href: "#contact", external: false },
   ];
 
   return (
@@ -34,15 +34,25 @@ export default function Footer() {
         </div>
 
         <nav className="flex flex-wrap justify-center gap-x-8 gap-y-3 mb-10">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-sm text-text-muted hover:text-gold transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.href.startsWith("/") ? (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-sm text-text-muted hover:text-gold transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm text-text-muted hover:text-gold transition-colors"
+              >
+                {link.label}
+              </a>
+            )
+          )}
         </nav>
 
         <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">

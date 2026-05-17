@@ -56,6 +56,26 @@
     <priority>0.6</priority>
   </url>
 
+  <!-- MAAT Platform — flagship product page -->
+  <url>
+    <loc>https://reichelyra.com/maat</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://reichelyra.com/og-image.png</image:loc>
+      <image:title>MAAT Platform — AI-Powered Legal Intelligence</image:title>
+    </image:image>
+  </url>
+
+  <!-- About — company + founder bio -->
+  <url>
+    <loc>https://reichelyra.com/about</loc>
+    <lastmod>2026-05-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
   <!-- Privacy Policy -->
   <url>
     <loc>https://reichelyra.com/privacy</loc>

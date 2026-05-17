@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLocale } from "@/i18n/LocaleProvider";
 
 export default function MaatProject() {
@@ -46,10 +47,13 @@ export default function MaatProject() {
               ))}
             </div>
 
-            <div className="mt-8 flex gap-4">
+            <div className="mt-8 flex flex-wrap gap-4">
               <a href="#contact" className="btn-primary">
                 {t("maat.cta")}
               </a>
+              <Link href="/maat" className="btn-outline">
+                Learn more →
+              </Link>
             </div>
           </div>
 
