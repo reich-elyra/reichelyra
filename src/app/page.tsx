@@ -3,10 +3,13 @@
 import { useEffect } from "react";
 import { LocaleProvider, useLocale } from "@/i18n/LocaleProvider";
 import useReveal from "@/lib/useReveal";
+import ScrollProgress from "@/components/ScrollProgress";
+import BackToTop from "@/components/BackToTop";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import About from "@/components/About";
 import Services from "@/components/Services";
+import Partners from "@/components/Partners";
 import Vision from "@/components/Vision";
 import MaatProject from "@/components/MaatProject";
 import Innovation from "@/components/Innovation";
@@ -28,17 +31,20 @@ function PageContent() {
 
   return (
     <>
+      <ScrollProgress />
       <Navbar />
       <main>
         <Hero />
         <About />
         <Services />
+        <Partners />
         <Vision />
         <MaatProject />
         <Innovation />
         <Contact />
       </main>
       <Footer />
+      <BackToTop />
     </>
   );
 }
