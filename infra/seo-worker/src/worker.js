@@ -17,6 +17,38 @@ function rebrand(str) {
   return str.split(REBRAND_FROM).join(REBRAND_TO);
 }
 
+// Marketing nav (Home, MAAT, Zeus, Services, Process, Contact — the
+// ".mnav-inner" / ".cta" component) is missing a login link and a
+// back button. The dashboard shell (Terms, Privacy, logged-in app
+// views) already has its own login button and different markup, so
+// this is scoped to pages that actually have ".mnav-inner" (see
+// hasMarketingNav below).
+//
+// IMPORTANT: this SvelteKit app hydrates client-side and wipes any
+// extra nodes injected *inside* its component tree (verified: nodes
+// added inside .mnav-inner vanish once JS takes over). To survive
+// hydration, this floating cluster is injected as a sibling of
+// SvelteKit's mount point (at the very end of the document, via
+// onDocument's `end` handler) and positioned with `position:fixed`
+// so its DOM location doesn't matter — bottom-center keeps it clear
+// of the nav's own layout on every viewport size without needing to
+// know the nav's exact height/breakpoints.
+const UTILITY_CLUSTER_HTML =
+  '<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
+  "z-index:99999;display:flex;align-items:center;gap:8px;padding:6px;" +
+  "background:rgba(3,7,18,0.92);backdrop-filter:blur(6px);" +
+  'border:1px solid rgba(201,168,76,0.3);border-radius:999px;direction:rtl;">' +
+  '<button type="button" ' +
+  "onclick=\"history.length>1?history.back():location.href='/'\" " +
+  'aria-label="رجوع" style="display:inline-flex;align-items:center;justify-content:center;' +
+  "width:36px;height:36px;border-radius:999px;border:none;" +
+  'background:transparent;color:#c9a84c;font-size:18px;line-height:1;cursor:pointer;">→</button>' +
+  '<a href="/auth/login" style="display:inline-flex;align-items:center;justify-content:center;' +
+  "padding:8px 18px;border-radius:999px;border:none;" +
+  "background:#c9a84c;color:#030712;font-size:14px;font-weight:700;" +
+  'text-decoration:none;white-space:nowrap;">تسجيل الدخول</a>' +
+  "</div>";
+
 const VERIFICATION_META =
   '<meta name="google-site-verification" content="5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY">' +
   '<meta name="msvalidate.01" content="9AD443EE49AB5ED312B22A7A9706273D">';
@@ -98,6 +130,7 @@ export default {
 
     let jsonLdReplaced = false;
     let titleIndex = 0;
+    let hasMarketingNav = false;
     // Shared "don't touch this text" counter — covers <script>, <style>,
     // and the stray first <title>Z App</title> that gets removed below.
     let skipDocText = 0;
@@ -151,12 +184,22 @@ export default {
           }
         }
       })
+      .on(".mnav-inner", {
+        element() {
+          hasMarketingNav = true;
+        }
+      })
       .on("script", { element: pushSkip })
       .on("style", { element: pushSkip })
       .onDocument({
         text(chunk) {
           if (skipDocText === 0 && chunk.text.includes(REBRAND_FROM)) {
             chunk.replace(rebrand(chunk.text));
+          }
+        },
+        end(end) {
+          if (hasMarketingNav) {
+            end.append(UTILITY_CLUSTER_HTML, { html: true });
           }
         }
       })
