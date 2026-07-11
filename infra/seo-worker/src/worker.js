@@ -27,27 +27,46 @@ function rebrand(str) {
 // IMPORTANT: this SvelteKit app hydrates client-side and wipes any
 // extra nodes injected *inside* its component tree (verified: nodes
 // added inside .mnav-inner vanish once JS takes over). To survive
-// hydration, this floating cluster is injected as a sibling of
-// SvelteKit's mount point (at the very end of the document, via
-// onDocument's `end` handler) and positioned with `position:fixed`
-// so its DOM location doesn't matter — bottom-center keeps it clear
-// of the nav's own layout on every viewport size without needing to
-// know the nav's exact height/breakpoints.
-const UTILITY_CLUSTER_HTML =
-  '<div style="position:fixed;bottom:18px;left:50%;transform:translateX(-50%);' +
-  "z-index:99999;display:flex;align-items:center;gap:8px;padding:6px;" +
-  "background:rgba(3,7,18,0.92);backdrop-filter:blur(6px);" +
-  'border:1px solid rgba(201,168,76,0.3);border-radius:999px;direction:rtl;">' +
+// hydration, this bar is injected as a sibling of SvelteKit's mount
+// point (at the very end of the document, via onDocument's `end`
+// handler) and positioned with `position:fixed`, so its DOM location
+// doesn't matter for where it renders.
+//
+// It's a full-width bar flush to the bottom edge (not a floating
+// pill) — BAR_HEIGHT of matching `padding-bottom` is added to <body>
+// so it never overlaps real page content, on any page or scroll
+// position.
+const BAR_HEIGHT = 60;
+
+const UTILITY_BAR_HTML =
+  '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
+  BAR_HEIGHT +
+  "px;z-index:99999;display:flex;align-items:center;justify-content:space-between;" +
+  "gap:12px;padding:0 20px;box-sizing:border-box;" +
+  "background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
+  'box-shadow:0 -8px 24px rgba(0,0,0,0.45);direction:rtl;">' +
   '<button type="button" ' +
   "onclick=\"history.length>1?history.back():location.href='/'\" " +
-  'aria-label="رجوع" style="display:inline-flex;align-items:center;justify-content:center;' +
-  "width:36px;height:36px;border-radius:999px;border:none;" +
-  'background:transparent;color:#c9a84c;font-size:18px;line-height:1;cursor:pointer;">→</button>' +
+  'style="display:inline-flex;align-items:center;gap:8px;' +
+  "padding:10px 18px;border-radius:999px;border:1px solid rgba(201,168,76,0.4);" +
+  'background:transparent;color:#c9a84c;font-size:14px;font-weight:600;cursor:pointer;">' +
+  "<span>→</span><span>رجوع</span></button>" +
   '<a href="/auth/login" style="display:inline-flex;align-items:center;justify-content:center;' +
-  "padding:8px 18px;border-radius:999px;border:none;" +
+  "padding:10px 24px;border-radius:999px;border:none;" +
   "background:#c9a84c;color:#030712;font-size:14px;font-weight:700;" +
   'text-decoration:none;white-space:nowrap;">تسجيل الدخول</a>' +
   "</div>";
+
+// Z App's own homepage hero includes a decorative, purely cosmetic
+// "live status" widget (aria-hidden="true", class "cluster") showing
+// fake rotating tags ("تم الإرسال" / "قيد المراجعة" / ...) next to
+// the logo. The user flagged it as visual clutter — hide it. Matched
+// by class name + aria-hidden rather than the volatile Svelte hash
+// suffix so it survives Z App recompiling with a different hash.
+function isDecorativeCluster(el) {
+  const cls = (el.getAttribute("class") || "").split(/\s+/);
+  return cls.includes("cluster") && el.getAttribute("aria-hidden") === "true";
+}
 
 const VERIFICATION_META =
   '<meta name="google-site-verification" content="5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY">' +
@@ -189,6 +208,13 @@ export default {
           hasMarketingNav = true;
         }
       })
+      .on("div", {
+        element(el) {
+          if (isDecorativeCluster(el)) {
+            el.setAttribute("style", "display:none");
+          }
+        }
+      })
       .on("script", { element: pushSkip })
       .on("style", { element: pushSkip })
       .onDocument({
@@ -199,7 +225,15 @@ export default {
         },
         end(end) {
           if (hasMarketingNav) {
-            end.append(UTILITY_CLUSTER_HTML, { html: true });
+            // Inline <style> here (not a body.style attribute) because
+            // hasMarketingNav is only known once we've already streamed
+            // past the opening <body> tag — a style block works
+            // regardless of where in the document it appears.
+            end.append(
+              `<style>body{padding-bottom:${BAR_HEIGHT}px !important}</style>` +
+                UTILITY_BAR_HTML,
+              { html: true }
+            );
           }
         }
       })
