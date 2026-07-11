@@ -15,7 +15,7 @@
 - **SEO**: JSON-LD `@graph` (14 valid items), sitemap.xml, robots.txt (blocks AI crawlers)
 - **Search Indexing**: Google Search Console + Bing Webmaster Tools (both verified, sitemap submitted)
 - **Security**: HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy via `public/_headers`
-- **DNS**: DNSSEC enabled (Cloudflare default). `reichelyra.com` + `www` → CNAME (proxied, flattened) → `reichelyra.pages.dev`. `app.reichelyra.com` → unrelated "Z App" (SvelteKit) on external origin `92.5.123.131` — do not touch. `api.reichelyra.com` → same Z App origin, also unrelated.
+- **DNS — USER'S FINAL DECISION 2026-07-11 (do NOT "fix" this)**: `reichelyra.com` + `www` + `app` + `api` → A records (proxied) → `92.5.123.131` = **"Z App"** (SvelteKit, Arabic, MAAT·ZEUS platform). **Z App IS the user's main production site by explicit choice.** This Next.js repo's site lives ONLY at `reichelyra.pages.dev` (custom domains removed from the Pages project on purpose). If the apex ever serves this Next.js site again, that is a REGRESSION against the user's decision — restore the A records to `92.5.123.131`.
 
 ## Commands
 
@@ -109,18 +109,17 @@ scripts/
 
 ## Incident log
 
-**2026-07-11 — Domain was serving the wrong app, site invisible to search engines.**
-`reichelyra.com` and `www.reichelyra.com` had their DNS A records pointing directly at an external IP (`92.5.123.131`) hosting an unrelated SvelteKit app ("Z App"). This silently overrode the Cloudflare Pages custom domain that had been active since 2026-05-17, flipping its status to `deactivated`. Search engines (and anyone visiting the apex domain) saw Z App instead of the Reich Elyra site — despite the `reichelyra.pages.dev` deployment always being correct. Root cause of the DNS change is unknown (not made by this project's tooling).
+**2026-07-11 (final) — User decision: Z App is the main site on reichelyra.com.**
+Earlier this day, `reichelyra.com` was found serving "Z App" (the user's Arabic SvelteKit platform — MAAT·ZEUS, hosted on external origin `92.5.123.131`) instead of this repo's Next.js site, and the domain was temporarily switched to the Pages deployment on the assumption this was a hijack. **The user then clarified this was wrong: Z App is intentionally the main production site.** The switch was fully reverted the same day:
 
-**Fix applied:**
-1. Preserved Z App by pointing it to a new subdomain: `app.reichelyra.com` → A → `92.5.123.131` (proxied)
-2. Deleted the conflicting A records on `reichelyra.com` / `www.reichelyra.com`
-3. Recreated them as CNAME → `reichelyra.pages.dev` (proxied, Cloudflare-flattened at the apex)
-4. Re-triggered Pages custom-domain validation via the Cloudflare API (`PATCH .../pages/projects/reichelyra/domains/{name}`) — both flipped to `active` within ~1 minute
-5. Verified: homepage, `/maat`, `/about`, sitemap, robots.txt, GA4 tag, GSC + Bing verification meta tags, and SSL cert (Google CA, valid to 2026-08-15) all correct on the live domain
-6. `api.reichelyra.com` was left untouched — still points to the Z App origin, presumably its backend
+1. Custom domains `reichelyra.com` + `www.reichelyra.com` **removed from the Pages project** (so Pages can never grab the apex again)
+2. Apex + `www` restored as A records (proxied) → `92.5.123.131` (Z App origin)
+3. `app.reichelyra.com` + `api.reichelyra.com` also point to the same origin
+4. Bing Webmaster verification added at DNS level: CNAME `9AD443EE49AB5ED312B22A7A9706273D.reichelyra.com` → `verify.bing.com`
 
-**If `reichelyra.com` ever shows the wrong content again**: check DNS records in Cloudflare first (Zone ID `ade72e73674533771de47df5f14f0a64`) — the apex and `www` must be CNAME → `reichelyra.pages.dev`, not a raw A record to any other IP.
+**SEO for Z App (the live site)** — user wants full SEO applied to Z App. Its origin code is NOT in this repo (likely the Replit workspace). Options: edge injection via Cloudflare Worker/Snippet (needs a token with Workers Scripts:Edit + Workers Routes:Edit), or editing Z App's source on Replit. Z App already serves its own robots.txt + sitemap.xml; its JSON-LD contains placeholder URLs (`z-app.example`) that need correcting; it lacks GA4 and Google/Bing verification meta tags.
+
+**Zone facts**: Zone ID `ade72e73674533771de47df5f14f0a64`, Account ID `c461f82c99d855046c6417c0c23f6be0`, Pages project `reichelyra` (deployment still live at `reichelyra.pages.dev` only).
 
 ## Important note
 
