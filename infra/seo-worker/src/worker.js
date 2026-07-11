@@ -1,8 +1,30 @@
 // SEO injection worker for reichelyra.com (Z App origin)
 // Injects: GA4, Google/Bing verification meta tags, corrected JSON-LD.
+// Also strips the stray "Z App" title tag / branding and swaps the favicon
+// for the Reich Elyra scarab mark.
 // Everything else (assets, APIs, websockets, non-HTML) passes through untouched.
 
 const GA_ID = "G-66BKZ2ZEJN";
+
+const FAVICON_SVG =
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">' +
+  '<rect width="32" height="32" rx="4" fill="#030712"/>' +
+  '<ellipse cx="16" cy="17" rx="5" ry="6" fill="#c9a84c"/>' +
+  '<circle cx="16" cy="10" r="3" fill="#c9a84c"/>' +
+  '<line x1="16" y1="12" x2="16" y2="23" stroke="#030712" stroke-width="0.8"/>' +
+  '<path d="M11 17 Q13 14 16 12" fill="none" stroke="#030712" stroke-width="0.6"/>' +
+  '<path d="M21 17 Q19 14 16 12" fill="none" stroke="#030712" stroke-width="0.6"/>' +
+  '<path d="M14 8 Q12 5 10 4" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>' +
+  '<path d="M18 8 Q20 5 22 4" fill="none" stroke="#c9a84c" stroke-width="1.2" stroke-linecap="round"/>' +
+  '<path d="M11.5 15 L9 13" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  '<path d="M11 17 L8.5 17" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  '<path d="M11.5 19 L9 21" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  '<path d="M20.5 15 L23 13" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  '<path d="M21 17 L23.5 17" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  '<path d="M20.5 19 L23 21" stroke="#c9a84c" stroke-width="0.8" stroke-linecap="round"/>' +
+  "</svg>";
+
+const FAVICON_DATA_URI = "data:image/svg+xml," + encodeURIComponent(FAVICON_SVG);
 
 const VERIFICATION_META =
   '<meta name="google-site-verification" content="5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY">' +
@@ -84,11 +106,36 @@ export default {
     withGaCsp(response.headers);
 
     let jsonLdReplaced = false;
+    let titleIndex = 0;
 
     return new HTMLRewriter()
       .on("head", {
         element(el) {
           el.append(VERIFICATION_META + GA_SNIPPET, { html: true });
+        }
+      })
+      .on("title", {
+        element(el) {
+          titleIndex++;
+          // Z App always emits a stray first <title>Z App</title> before
+          // the real, page-specific title — drop it.
+          if (titleIndex === 1) {
+            el.remove();
+          }
+        },
+        text(text) {
+          if (titleIndex > 1 && text.text.includes("Z App")) {
+            text.replace(text.text.split("Z App").join("Reich Elyra"));
+          }
+        }
+      })
+      .on("link", {
+        element(el) {
+          const rel = (el.getAttribute("rel") || "").split(/\s+/);
+          if (rel.includes("icon")) {
+            el.setAttribute("href", FAVICON_DATA_URI);
+            el.setAttribute("type", "image/svg+xml");
+          }
         }
       })
       .on('script[type="application/ld+json"]', {

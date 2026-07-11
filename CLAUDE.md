@@ -121,6 +121,7 @@ Earlier this day, `reichelyra.com` was found serving "Z App" (the user's Arabic 
 
 - **Worker**: `reichelyra-seo` (source: **`infra/seo-worker/`** in this repo) on routes `reichelyra.com/*` + `www.reichelyra.com/*`
 - Injects into every HTML GET response: GA4 (`G-66BKZ2ZEJN`), `google-site-verification` + `msvalidate.01` meta tags (same tokens as before, so GSC/Bing properties stay verified), and replaces Z App's broken JSON-LD (had placeholder `z-app.example` URLs) with a correct Reich Elyra Organization+WebSite `@graph`
+- Strips Z App branding from the browser tab: removes Z App's stray first `<title>Z App</title>` (every page emits two title tags — Z App's own bug), rewrites any remaining "Z App" text inside the real page-specific title to "Reich Elyra", and replaces the `<link rel="icon">` href (was a hand-drawn "Z" SVG) with the Reich Elyra scarab favicon as an inline `data:image/svg+xml` — no cross-origin dependency, no CSP change needed since `data:` is already allowed by the origin's `img-src`
 - Also patches the origin's CSP header to allow `googletagmanager.com` (script-src) and `google-analytics.com` (connect-src) — without this the GA script would be blocked
 - Passes through untouched: non-HTML, non-GET, websockets, robots.txt, sitemap.xml (Z App serves its own — they're fine)
 - `app.` / `api.` subdomains have NO worker (avoids double-counting GA)
