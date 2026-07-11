@@ -15,7 +15,7 @@
 - **SEO**: JSON-LD `@graph` (14 valid items), sitemap.xml, robots.txt (blocks AI crawlers)
 - **Search Indexing**: Google Search Console + Bing Webmaster Tools (both verified, sitemap submitted)
 - **Security**: HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy via `public/_headers`
-- **DNS**: DNSSEC enabled (Cloudflare default)
+- **DNS**: DNSSEC enabled (Cloudflare default). `reichelyra.com` + `www` → CNAME (proxied, flattened) → `reichelyra.pages.dev`. `app.reichelyra.com` → unrelated "Z App" (SvelteKit) on external origin `92.5.123.131` — do not touch. `api.reichelyra.com` → same Z App origin, also unrelated.
 
 ## Commands
 
@@ -102,9 +102,25 @@ scripts/
 
 ## Still pending (need user action)
 
-- **Formspree form**: register at formspree.io, set `NEXT_PUBLIC_FORMSPREE_ENDPOINT`
-- **Email mailbox**: configure Google Workspace or Zoho for `info@reichelyra.com`
+- **Email mailbox**: configure Zoho Mail (free plan) for `info@reichelyra.com` — needs domain TXT verification + MX records (`mx.zoho.com`, `mx2.zoho.com`, `mx3.zoho.com`) added in Cloudflare DNS
 - **Social accounts**: LinkedIn, Twitter/X for the company — then add URLs to `structured-data.ts` `sameAs` array
+- **Google Search Console**: use URL Inspection → "Request Indexing" on `https://reichelyra.com/` now that the domain fix is live, to speed up re-crawl
+- **Bing Webmaster Tools**: use "Submit URL" for `https://reichelyra.com/` for the same reason
+
+## Incident log
+
+**2026-07-11 — Domain was serving the wrong app, site invisible to search engines.**
+`reichelyra.com` and `www.reichelyra.com` had their DNS A records pointing directly at an external IP (`92.5.123.131`) hosting an unrelated SvelteKit app ("Z App"). This silently overrode the Cloudflare Pages custom domain that had been active since 2026-05-17, flipping its status to `deactivated`. Search engines (and anyone visiting the apex domain) saw Z App instead of the Reich Elyra site — despite the `reichelyra.pages.dev` deployment always being correct. Root cause of the DNS change is unknown (not made by this project's tooling).
+
+**Fix applied:**
+1. Preserved Z App by pointing it to a new subdomain: `app.reichelyra.com` → A → `92.5.123.131` (proxied)
+2. Deleted the conflicting A records on `reichelyra.com` / `www.reichelyra.com`
+3. Recreated them as CNAME → `reichelyra.pages.dev` (proxied, Cloudflare-flattened at the apex)
+4. Re-triggered Pages custom-domain validation via the Cloudflare API (`PATCH .../pages/projects/reichelyra/domains/{name}`) — both flipped to `active` within ~1 minute
+5. Verified: homepage, `/maat`, `/about`, sitemap, robots.txt, GA4 tag, GSC + Bing verification meta tags, and SSL cert (Google CA, valid to 2026-08-15) all correct on the live domain
+6. `api.reichelyra.com` was left untouched — still points to the Z App origin, presumably its backend
+
+**If `reichelyra.com` ever shows the wrong content again**: check DNS records in Cloudflare first (Zone ID `ade72e73674533771de47df5f14f0a64`) — the apex and `www` must be CNAME → `reichelyra.pages.dev`, not a raw A record to any other IP.
 
 ## Important note
 
