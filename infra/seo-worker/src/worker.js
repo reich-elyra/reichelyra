@@ -18,55 +18,114 @@ function rebrand(str) {
 }
 
 // Marketing nav (Home, MAAT, Zeus, Services, Process, Contact — the
-// ".mnav-inner" / ".cta" component) is missing a login link and a
-// back button. The dashboard shell (Terms, Privacy, logged-in app
-// views) already has its own login button and different markup, so
-// this is scoped to pages that actually have ".mnav-inner" (see
-// hasMarketingNav below).
+// ".mnav-inner" / ".cta" component). Z App already ships a full
+// English translation at the /en prefix (verified: /en, /en/maat,
+// /en/auth/login all serve real translated content with
+// lang="en" dir="ltr" — this is not something we're building, only
+// exposing) but the marketing nav has no visible switcher for it.
 //
 // IMPORTANT: this SvelteKit app hydrates client-side and wipes any
 // extra nodes injected *inside* its component tree (verified: nodes
-// added inside .mnav-inner vanish once JS takes over). To survive
-// hydration, everything here is injected as a sibling of SvelteKit's
-// mount point (at the very end of the document, via onDocument's
-// `end` handler) and positioned with `position:fixed`, so its DOM
-// location doesn't matter for where it renders. Verify any future
-// change to this with `chrome --headless --dump-dom`, not curl —
-// curl only shows pre-hydration SSR output.
+// added inside .mnav-inner vanish once JS takes over). New elements
+// here are injected as a sibling of SvelteKit's mount point (at the
+// very end of the document, via onDocument's `end` handler) and
+// positioned with `position:fixed`, so DOM location doesn't matter
+// for where they render. Verify any future change with
+// `chrome --headless --dump-dom`, not curl — curl only shows
+// pre-hydration SSR output.
 //
-// Layout (2026-07-11, per user request — login moved to the top):
-// - Login: small pill fixed just *below* the nav row on the right
-//   (top:70px, past the ~55-60px nav height measured from
-//   screenshots). First attempt placed it at top:14px overlapping
-//   the nav row itself and covered part of the "REICH ELYRA"
-//   wordmark — moving it below the row avoids the nav's brand text
-//   entirely rather than trying to guess a horizontal gap next to it.
-// - Back: full-width bar flush to the bottom edge, with matching
-//   body padding-bottom so it never overlaps real content.
+// Modifying an EXISTING element's text/attributes (the .cta button
+// below) is a different, safer case: this survived hydration in
+// testing, unlike adding new nodes — likely because its href/text
+// are static in Z App's compiled template, so hydration has no
+// reactive value to re-assert over ours.
+//
+// Layout (2026-07-11, iterated multiple times on user feedback):
+// - Login: FIRST tried repointing the existing "ابدأ مشروعك" /
+//   "Start a project" nav CTA (`a.cta`) in place, since editing an
+//   existing element seemed safer than adding one. **This did NOT
+//   survive hydration** — verified with --dump-dom, the CTA's
+//   text/href revert to the original once JS runs, because (unlike
+//   the static <title>/meta/img-alt edits elsewhere in this file)
+//   the CTA's label and link are driven by Z App's own i18n store —
+//   Svelte re-asserts reactive bindings on hydration even for
+//   elements that already existed server-side. Fixed by instead
+//   hiding the original CTA (style="display:none" on `.cta` DOES
+//   survive, same as the decorative-cluster hide below — it's a
+//   non-reactive attribute) and adding a new floating login badge,
+//   mirroring the language-switch badge on the opposite side.
+// - Language switch: floating badge, top:70px, right:14px — proven
+//   not to overlap the "REICH ELYRA" wordmark (first attempt at
+//   top:14px did overlap it; moving below the nav row fixed it).
+// - Login badge: same row, left:14px (mirrors the language switch).
+// - Back: full-width bar flush to the bottom edge, button pinned to
+//   the physical right with `position:absolute;right:20px` (not
+//   flex+direction, which was ambiguous) so "right" means right on
+//   both the Arabic and English pages, per explicit user request.
+//   Matching body padding-bottom keeps it from overlapping content.
+//
+// Lesson for future edits: an element surviving in raw HTML (curl)
+// is not enough — an EXISTING element's reactive text/attributes can
+// still be silently reverted by hydration even without being
+// "removed". Always confirm with --dump-dom, not just curl.
 const BAR_HEIGHT = 60;
 
-const LOGIN_BADGE_HTML =
-  '<a href="/auth/login" style="position:fixed;top:70px;right:14px;z-index:99999;' +
-  "display:inline-flex;align-items:center;justify-content:center;" +
-  "padding:8px 20px;border-radius:999px;border:none;" +
-  "background:#c9a84c;color:#030712;font-size:13px;font-weight:700;" +
-  'text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.35);' +
-  'direction:rtl;">تسجيل الدخول</a>';
+const I18N = {
+  ar: { login: "تسجيل الدخول", back: "رجوع", backArrow: "→", switchTo: "English", switchLabel: "EN" },
+  en: { login: "Login", back: "Back", backArrow: "←", switchTo: "العربية", switchLabel: "AR" }
+};
 
-const BACK_BAR_HTML =
-  '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
-  BAR_HEIGHT +
-  "px;z-index:99999;display:flex;align-items:center;justify-content:flex-end;" +
-  "padding:0 20px;box-sizing:border-box;" +
-  "background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
-  'box-shadow:0 -8px 24px rgba(0,0,0,0.45);direction:rtl;">' +
-  '<button type="button" ' +
-  "onclick=\"history.length>1?history.back():location.href='/'\" " +
-  'style="display:inline-flex;align-items:center;gap:8px;' +
-  "padding:10px 18px;border-radius:999px;border:1px solid rgba(201,168,76,0.4);" +
-  'background:transparent;color:#c9a84c;font-size:14px;font-weight:600;cursor:pointer;">' +
-  "<span>→</span><span>رجوع</span></button>" +
-  "</div>";
+function toggleLocalePath(pathname, lang) {
+  if (lang === "en") {
+    // /en -> /, /en/maat -> /maat, /en/ -> /
+    const stripped = pathname.replace(/^\/en(\/|$)/, "/");
+    return stripped === "//" ? "/" : stripped;
+  }
+  // / -> /en, /maat -> /en/maat
+  return pathname === "/" ? "/en" : "/en" + pathname;
+}
+
+function langSwitchHtml(pathname, lang) {
+  const t = I18N[lang];
+  const href = toggleLocalePath(pathname, lang);
+  return (
+    `<a href="${href}" style="position:fixed;top:70px;right:14px;z-index:99999;` +
+    "display:inline-flex;align-items:center;justify-content:center;" +
+    "padding:8px 18px;border-radius:999px;border:1px solid rgba(201,168,76,0.4);" +
+    'background:rgba(3,7,18,0.9);color:#c9a84c;font-size:13px;font-weight:700;' +
+    `text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.35);">${t.switchTo}</a>`
+  );
+}
+
+function loginBadgeHtml(lang) {
+  const t = I18N[lang];
+  const href = lang === "en" ? "/en/auth/login" : "/auth/login";
+  return (
+    `<a href="${href}" style="position:fixed;top:70px;left:14px;z-index:99999;` +
+    "display:inline-flex;align-items:center;justify-content:center;" +
+    "padding:8px 20px;border-radius:999px;border:none;" +
+    "background:#c9a84c;color:#030712;font-size:13px;font-weight:700;" +
+    `text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.35);">${t.login}</a>`
+  );
+}
+
+function backBarHtml(lang) {
+  const t = I18N[lang];
+  return (
+    '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
+    BAR_HEIGHT +
+    "px;z-index:99999;background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
+    'box-shadow:0 -8px 24px rgba(0,0,0,0.45);">' +
+    '<button type="button" ' +
+    "onclick=\"history.length>1?history.back():location.href='/'\" " +
+    'style="position:absolute;top:50%;right:20px;transform:translateY(-50%);' +
+    "display:inline-flex;align-items:center;gap:8px;" +
+    "padding:10px 18px;border-radius:999px;border:1px solid rgba(201,168,76,0.4);" +
+    'background:transparent;color:#c9a84c;font-size:14px;font-weight:600;cursor:pointer;">' +
+    `<span>${t.backArrow}</span><span>${t.back}</span></button>` +
+    "</div>"
+  );
+}
 
 // Z App's own homepage hero includes a decorative, purely cosmetic
 // "live status" widget (aria-hidden="true", class "cluster") showing
@@ -88,39 +147,48 @@ const GA_SNIPPET =
   `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}` +
   `gtag('js',new Date());gtag('config','${GA_ID}');</script>`;
 
-const STRUCTURED_DATA = JSON.stringify({
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      "@id": "https://reichelyra.com/#organization",
-      "name": "Reich Elyra",
-      "alternateName": ["ريخ إليرا", "MAAT"],
-      "url": "https://reichelyra.com",
-      "logo": "https://reichelyra.com/images/logo.png",
-      "slogan": "نبني حضارات رقمية.",
-      "description":
-        "منصّة الخدمات المهنيّة في مصر — الذكاء الاصطناعي، التقنية القانونية، والاستثمار. Reich Elyra is an Egyptian AI, LegalTech and investment platform.",
-      "areaServed": { "@type": "Country", "name": "Egypt" }
-    },
-    {
-      "@type": "WebSite",
-      "@id": "https://reichelyra.com/#website",
-      "url": "https://reichelyra.com",
-      "name": "Reich Elyra",
-      "publisher": { "@id": "https://reichelyra.com/#organization" },
-      "inLanguage": "ar-EG",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": {
-          "@type": "EntryPoint",
-          "urlTemplate": "https://reichelyra.com/search?q={search_term_string}"
-        },
-        "query-input": "required name=search_term_string"
+// Locale-aware — the /en pages have their own correct lang="en"
+// dir="ltr" markup, so structured data injected there must match
+// (previously this was hardcoded Arabic and would have overridden
+// English pages' own metadata with Arabic JSON-LD once the language
+// switcher went live).
+function structuredData(lang) {
+  const isEn = lang === "en";
+  return JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://reichelyra.com/#organization",
+        name: "Reich Elyra",
+        alternateName: isEn ? ["Reich Elyra", "MAAT"] : ["ريخ إليرا", "MAAT"],
+        url: "https://reichelyra.com",
+        logo: "https://reichelyra.com/images/logo.png",
+        slogan: isEn ? "We build digital civilizations." : "نبني حضارات رقمية.",
+        description: isEn
+          ? "Reich Elyra is an Egyptian AI, LegalTech and investment platform — the trusted marketplace for professional services."
+          : "منصّة الخدمات المهنيّة في مصر — الذكاء الاصطناعي، التقنية القانونية، والاستثمار. Reich Elyra is an Egyptian AI, LegalTech and investment platform.",
+        areaServed: { "@type": "Country", name: "Egypt" }
+      },
+      {
+        "@type": "WebSite",
+        "@id": "https://reichelyra.com/#website",
+        url: "https://reichelyra.com",
+        name: "Reich Elyra",
+        publisher: { "@id": "https://reichelyra.com/#organization" },
+        inLanguage: isEn ? "en" : "ar-EG",
+        potentialAction: {
+          "@type": "SearchAction",
+          target: {
+            "@type": "EntryPoint",
+            urlTemplate: "https://reichelyra.com/search?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
       }
-    }
-  ]
-});
+    ]
+  });
+}
 
 function withGaCsp(headers) {
   const csp = headers.get("Content-Security-Policy");
@@ -158,6 +226,10 @@ export default {
     const response = new Response(originResponse.body, originResponse);
     withGaCsp(response.headers);
 
+    const pathname = new URL(request.url).pathname;
+    let pageLang = "ar"; // overwritten by the <html lang="..."> handler below, which
+    // fires before everything else since <html> opens the document.
+
     let jsonLdReplaced = false;
     let titleIndex = 0;
     let hasMarketingNav = false;
@@ -173,6 +245,11 @@ export default {
     }
 
     return new HTMLRewriter()
+      .on("html", {
+        element(el) {
+          pageLang = el.getAttribute("lang") === "en" ? "en" : "ar";
+        }
+      })
       .on("head", {
         element(el) {
           el.append(VERIFICATION_META + GA_SNIPPET, { html: true });
@@ -219,6 +296,15 @@ export default {
           hasMarketingNav = true;
         }
       })
+      .on("a.cta", {
+        element(el) {
+          // Editing this element's text/href in place does not survive
+          // hydration (see the long comment above loginBadgeHtml) — hide
+          // it instead; the replacement login badge is injected at
+          // end-of-document below.
+          el.setAttribute("style", "display:none");
+        }
+      })
       .on("div", {
         element(el) {
           if (isDecorativeCluster(el)) {
@@ -242,8 +328,9 @@ export default {
             // regardless of where in the document it appears.
             end.append(
               `<style>body{padding-bottom:${BAR_HEIGHT}px !important}</style>` +
-                LOGIN_BADGE_HTML +
-                BACK_BAR_HTML,
+                loginBadgeHtml(pageLang) +
+                langSwitchHtml(pathname, pageLang) +
+                backBarHtml(pageLang),
               { html: true }
             );
           }
@@ -252,7 +339,7 @@ export default {
       .on('script[type="application/ld+json"]', {
         element(el) {
           if (!jsonLdReplaced) {
-            el.setInnerContent(STRUCTURED_DATA, { html: true });
+            el.setInnerContent(structuredData(pageLang), { html: true });
             jsonLdReplaced = true;
           }
         }
