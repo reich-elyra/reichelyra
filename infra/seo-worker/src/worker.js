@@ -1,6 +1,7 @@
 // SEO injection worker for reichelyra.com (Z App origin)
 // Injects: GA4, Google/Bing verification meta tags, corrected JSON-LD.
-// Also strips the stray "Z App" title tag / branding and points the
+// Also rebrands "Z App" -> "MAAT" everywhere it appears in the rendered
+// HTML (title, meta tags, image alt text, body copy) and points the
 // favicon at the real Reich Elyra logo (/images/logo.png — the one and
 // only official mark; do not substitute a redrawn version here).
 // Everything else (assets, APIs, websockets, non-HTML) passes through untouched.
@@ -8,6 +9,13 @@
 const GA_ID = "G-66BKZ2ZEJN";
 
 const FAVICON_HREF = "/images/logo.png";
+
+const REBRAND_FROM = "Z App";
+const REBRAND_TO = "MAAT";
+
+function rebrand(str) {
+  return str.split(REBRAND_FROM).join(REBRAND_TO);
+}
 
 const VERIFICATION_META =
   '<meta name="google-site-verification" content="5ltQ1XNm6eu6fvFZOMZKbR-Ntnh-qc_m1TnSxsjJbSY">' +
@@ -25,7 +33,7 @@ const STRUCTURED_DATA = JSON.stringify({
       "@type": "Organization",
       "@id": "https://reichelyra.com/#organization",
       "name": "Reich Elyra",
-      "alternateName": ["ريخ إليرا", "Z App", "زد"],
+      "alternateName": ["ريخ إليرا", "MAAT"],
       "url": "https://reichelyra.com",
       "logo": "https://reichelyra.com/images/logo.png",
       "slogan": "نبني حضارات رقمية.",
@@ -90,6 +98,16 @@ export default {
 
     let jsonLdReplaced = false;
     let titleIndex = 0;
+    // Shared "don't touch this text" counter — covers <script>, <style>,
+    // and the stray first <title>Z App</title> that gets removed below.
+    let skipDocText = 0;
+
+    function pushSkip(el) {
+      skipDocText++;
+      el.onEndTag(() => {
+        skipDocText = Math.max(0, skipDocText - 1);
+      });
+    }
 
     return new HTMLRewriter()
       .on("head", {
@@ -101,14 +119,10 @@ export default {
         element(el) {
           titleIndex++;
           // Z App always emits a stray first <title>Z App</title> before
-          // the real, page-specific title — drop it.
+          // the real, page-specific title — drop it entirely.
           if (titleIndex === 1) {
             el.remove();
-          }
-        },
-        text(text) {
-          if (titleIndex > 1 && text.text.includes("Z App")) {
-            text.replace(text.text.split("Z App").join("Reich Elyra"));
+            pushSkip(el);
           }
         }
       })
@@ -118,6 +132,31 @@ export default {
           if (rel.includes("icon")) {
             el.setAttribute("href", FAVICON_HREF);
             el.setAttribute("type", "image/png");
+          }
+        }
+      })
+      .on("meta", {
+        element(el) {
+          const content = el.getAttribute("content");
+          if (content && content.includes(REBRAND_FROM)) {
+            el.setAttribute("content", rebrand(content));
+          }
+        }
+      })
+      .on("img", {
+        element(el) {
+          const alt = el.getAttribute("alt");
+          if (alt && alt.includes(REBRAND_FROM)) {
+            el.setAttribute("alt", rebrand(alt));
+          }
+        }
+      })
+      .on("script", { element: pushSkip })
+      .on("style", { element: pushSkip })
+      .onDocument({
+        text(chunk) {
+          if (skipDocText === 0 && chunk.text.includes(REBRAND_FROM)) {
+            chunk.replace(rebrand(chunk.text));
           }
         }
       })
