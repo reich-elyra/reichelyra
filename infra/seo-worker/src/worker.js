@@ -27,22 +27,37 @@ function rebrand(str) {
 // IMPORTANT: this SvelteKit app hydrates client-side and wipes any
 // extra nodes injected *inside* its component tree (verified: nodes
 // added inside .mnav-inner vanish once JS takes over). To survive
-// hydration, this bar is injected as a sibling of SvelteKit's mount
-// point (at the very end of the document, via onDocument's `end`
-// handler) and positioned with `position:fixed`, so its DOM location
-// doesn't matter for where it renders.
+// hydration, everything here is injected as a sibling of SvelteKit's
+// mount point (at the very end of the document, via onDocument's
+// `end` handler) and positioned with `position:fixed`, so its DOM
+// location doesn't matter for where it renders. Verify any future
+// change to this with `chrome --headless --dump-dom`, not curl —
+// curl only shows pre-hydration SSR output.
 //
-// It's a full-width bar flush to the bottom edge (not a floating
-// pill) — BAR_HEIGHT of matching `padding-bottom` is added to <body>
-// so it never overlaps real page content, on any page or scroll
-// position.
+// Layout (2026-07-11, per user request — login moved to the top):
+// - Login: small pill fixed just *below* the nav row on the right
+//   (top:70px, past the ~55-60px nav height measured from
+//   screenshots). First attempt placed it at top:14px overlapping
+//   the nav row itself and covered part of the "REICH ELYRA"
+//   wordmark — moving it below the row avoids the nav's brand text
+//   entirely rather than trying to guess a horizontal gap next to it.
+// - Back: full-width bar flush to the bottom edge, with matching
+//   body padding-bottom so it never overlaps real content.
 const BAR_HEIGHT = 60;
 
-const UTILITY_BAR_HTML =
+const LOGIN_BADGE_HTML =
+  '<a href="/auth/login" style="position:fixed;top:70px;right:14px;z-index:99999;' +
+  "display:inline-flex;align-items:center;justify-content:center;" +
+  "padding:8px 20px;border-radius:999px;border:none;" +
+  "background:#c9a84c;color:#030712;font-size:13px;font-weight:700;" +
+  'text-decoration:none;white-space:nowrap;box-shadow:0 2px 10px rgba(0,0,0,0.35);' +
+  'direction:rtl;">تسجيل الدخول</a>';
+
+const BACK_BAR_HTML =
   '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
   BAR_HEIGHT +
-  "px;z-index:99999;display:flex;align-items:center;justify-content:space-between;" +
-  "gap:12px;padding:0 20px;box-sizing:border-box;" +
+  "px;z-index:99999;display:flex;align-items:center;justify-content:flex-end;" +
+  "padding:0 20px;box-sizing:border-box;" +
   "background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
   'box-shadow:0 -8px 24px rgba(0,0,0,0.45);direction:rtl;">' +
   '<button type="button" ' +
@@ -51,10 +66,6 @@ const UTILITY_BAR_HTML =
   "padding:10px 18px;border-radius:999px;border:1px solid rgba(201,168,76,0.4);" +
   'background:transparent;color:#c9a84c;font-size:14px;font-weight:600;cursor:pointer;">' +
   "<span>→</span><span>رجوع</span></button>" +
-  '<a href="/auth/login" style="display:inline-flex;align-items:center;justify-content:center;' +
-  "padding:10px 24px;border-radius:999px;border:none;" +
-  "background:#c9a84c;color:#030712;font-size:14px;font-weight:700;" +
-  'text-decoration:none;white-space:nowrap;">تسجيل الدخول</a>' +
   "</div>";
 
 // Z App's own homepage hero includes a decorative, purely cosmetic
@@ -231,7 +242,8 @@ export default {
             // regardless of where in the document it appears.
             end.append(
               `<style>body{padding-bottom:${BAR_HEIGHT}px !important}</style>` +
-                UTILITY_BAR_HTML,
+                LOGIN_BADGE_HTML +
+                BACK_BAR_HTML,
               { html: true }
             );
           }
