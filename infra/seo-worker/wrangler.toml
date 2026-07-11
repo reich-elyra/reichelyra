@@ -1,0 +1,13 @@
+name = "reichelyra-seo"
+main = "src/worker.js"
+compatibility_date = "2026-01-01"
+account_id = "c461f82c99d855046c6417c0c23f6be0"
+workers_dev = false
+
+[[routes]]
+pattern = "reichelyra.com/*"
+zone_id = "ade72e73674533771de47df5f14f0a64"
+
+[[routes]]
+pattern = "www.reichelyra.com/*"
+zone_id = "ade72e73674533771de47df5f14f0a64"

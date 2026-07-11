@@ -117,7 +117,14 @@ Earlier this day, `reichelyra.com` was found serving "Z App" (the user's Arabic 
 3. `app.reichelyra.com` + `api.reichelyra.com` also point to the same origin
 4. Bing Webmaster verification added at DNS level: CNAME `9AD443EE49AB5ED312B22A7A9706273D.reichelyra.com` → `verify.bing.com`
 
-**SEO for Z App (the live site)** — user wants full SEO applied to Z App. Its origin code is NOT in this repo (likely the Replit workspace). Options: edge injection via Cloudflare Worker/Snippet (needs a token with Workers Scripts:Edit + Workers Routes:Edit), or editing Z App's source on Replit. Z App already serves its own robots.txt + sitemap.xml; its JSON-LD contains placeholder URLs (`z-app.example`) that need correcting; it lacks GA4 and Google/Bing verification meta tags.
+**SEO for Z App (the live site) — DONE 2026-07-11 via edge injection.** Z App's origin code is NOT in this repo (likely the Replit workspace), so SEO is injected at the Cloudflare edge by a Worker:
+
+- **Worker**: `reichelyra-seo` (source: **`infra/seo-worker/`** in this repo) on routes `reichelyra.com/*` + `www.reichelyra.com/*`
+- Injects into every HTML GET response: GA4 (`G-66BKZ2ZEJN`), `google-site-verification` + `msvalidate.01` meta tags (same tokens as before, so GSC/Bing properties stay verified), and replaces Z App's broken JSON-LD (had placeholder `z-app.example` URLs) with a correct Reich Elyra Organization+WebSite `@graph`
+- Also patches the origin's CSP header to allow `googletagmanager.com` (script-src) and `google-analytics.com` (connect-src) — without this the GA script would be blocked
+- Passes through untouched: non-HTML, non-GET, websockets, robots.txt, sitemap.xml (Z App serves its own — they're fine)
+- `app.` / `api.` subdomains have NO worker (avoids double-counting GA)
+- To modify: edit `infra/seo-worker/src/worker.js`, then from `infra/seo-worker/` run `CLOUDFLARE_API_TOKEN=<token> npx wrangler deploy`
 
 **Zone facts**: Zone ID `ade72e73674533771de47df5f14f0a64`, Account ID `c461f82c99d855046c6417c0c23f6be0`, Pages project `reichelyra` (deployment still live at `reichelyra.pages.dev` only).
 
