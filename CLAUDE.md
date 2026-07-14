@@ -12,6 +12,7 @@
 - **Analytics**: Google Analytics 4 (`G-66BKZ2ZEJN`) via `next/script` + consent mode + cookie banner
 - **PWA**: `/manifest.webmanifest` + `/sw.js` service worker (offline support, install to home screen)
 - **Contact**: Formspree (endpoint via env var) — falls back to mailto when unconfigured
+- **Email**: Zoho Mail (free) — `info@reichelyra.com`, `support@reichelyra.com`; MX/SPF/DKIM/DMARC all configured (see "Email — Zoho Mail" below)
 - **SEO**: JSON-LD `@graph` (14 valid items), sitemap.xml, robots.txt (blocks AI crawlers)
 - **Search Indexing**: Google Search Console + Bing Webmaster Tools (both verified, sitemap submitted)
 - **Security**: HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy via `public/_headers`
@@ -102,10 +103,20 @@ scripts/
 
 ## Still pending (need user action)
 
-- **Email mailbox**: configure Zoho Mail (free plan) for `info@reichelyra.com` — needs domain TXT verification + MX records (`mx.zoho.com`, `mx2.zoho.com`, `mx3.zoho.com`) added in Cloudflare DNS
 - **Social accounts**: LinkedIn, Twitter/X for the company — then add URLs to `structured-data.ts` `sameAs` array
-- **Google Search Console**: use URL Inspection → "Request Indexing" on `https://reichelyra.com/` now that the domain fix is live, to speed up re-crawl
-- **Bing Webmaster Tools**: use "Submit URL" for `https://reichelyra.com/` for the same reason
+- **DMARC hardening (optional, later)**: current policy is `p=none` (monitor-only — nothing gets blocked). Once the user has watched aggregate reports at `info@reichelyra.com` for a few weeks and confirmed no legitimate mail is failing SPF/DKIM, consider tightening to `p=quarantine` then `p=reject` for better anti-spoofing protection.
+
+## Email — Zoho Mail (done 2026-07-12)
+
+`info@reichelyra.com` and `support@reichelyra.com` are live on Zoho Mail (free plan, 2 users). User completed the Zoho signup + mailbox creation themselves; DNS came back already fully configured (user or Zoho's setup wizard added it directly — not done via this session's Cloudflare token). Verified propagated globally via Google DNS (8.8.8.8):
+
+| Record | Value |
+|--------|-------|
+| MX | `mx.zoho.com` (10), `mx2.zoho.com` (20), `mx3.zoho.com` (50) |
+| Domain verification (TXT) | `zoho-verification=zb66450723.zmverify.zoho.com` |
+| SPF (TXT) | `v=spf1 include:zohomail.com ~all` |
+| DKIM (TXT) | `zmail._domainkey.reichelyra.com` |
+| DMARC (TXT) | `_dmarc.reichelyra.com` → `v=DMARC1; p=none; rua=mailto:info@reichelyra.com; fo=1` — **added this session**, was missing; monitor-only policy, does not block any mail |
 
 ## Incident log
 
