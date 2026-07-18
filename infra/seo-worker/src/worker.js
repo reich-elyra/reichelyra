@@ -70,10 +70,19 @@ function rebrand(str) {
 // "removed". Always confirm with --dump-dom, not just curl.
 const BAR_HEIGHT = 60;
 
+// Contact info (2026-07-12, explicit user request): email displayed on
+// the live /contact page was the placeholder "contact@reichelyra.com" —
+// swap for the real, now-live mailbox. WhatsApp number is new — no
+// prior contact channel existed for it, so it's added as a floating
+// button (see backBarHtml) rather than edited in place.
+const CONTACT_EMAIL = "info@reichelyra.com";
+const WHATSAPP_NUMBER = "201556700075"; // no leading +, wa.me format
+
 const I18N = {
-  ar: { login: "تسجيل الدخول", back: "رجوع", backArrow: "→", switchTo: "English", switchLabel: "EN" },
-  en: { login: "Login", back: "Back", backArrow: "←", switchTo: "العربية", switchLabel: "AR" }
+  ar: { login: "تسجيل الدخول", back: "رجوع", backArrow: "→", switchTo: "English", switchLabel: "EN", whatsapp: "واتساب" },
+  en: { login: "Login", back: "Back", backArrow: "←", switchTo: "العربية", switchLabel: "AR", whatsapp: "WhatsApp" }
 };
+
 
 function toggleLocalePath(pathname, lang) {
   if (lang === "en") {
@@ -116,6 +125,35 @@ function backBarHtml(lang) {
     BAR_HEIGHT +
     "px;z-index:99999;background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
     'box-shadow:0 -8px 24px rgba(0,0,0,0.45);">' +
+    // WhatsApp — pinned to the physical left (mirrors "back" on the
+    // right). Uses WhatsApp's own brand green rather than the site's
+    // gold accent: this exact icon+color combination is what makes it
+    // instantly recognizable, which matters more here than palette
+    // consistency for one universally-recognized button.
+    `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener noreferrer" ` +
+    'style="position:absolute;top:50%;left:20px;transform:translateY(-50%);' +
+    "display:inline-flex;align-items:center;gap:8px;" +
+    "padding:10px 18px;border-radius:999px;border:none;" +
+    'background:#25D366;color:#03150c;font-size:14px;font-weight:700;text-decoration:none;">' +
+    '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
+    '<path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.16c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.14.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.68-.79.87-1.06.18-.27.37-.22.62-.13.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z"/>' +
+    "</svg>" +
+    `<span>${t.whatsapp}</span></a>` +
+    // Email — centered. This exists here (not just as a hidden-and-
+    // replaced element on the /contact page itself) because the
+    // /contact page's own "side-mail" link is driven by Z App's
+    // reactive state: editing its href/data-cfemail survives in curl
+    // output but reverts to the old "contact@reichelyra.com" once
+    // hydration runs (confirmed with --dump-dom — same class of bug
+    // as the CTA button, see the top-of-file comment). The old link
+    // is hidden below (a.side-mail { display:none }, which — like
+    // the CTA hide — is a non-reactive attribute and does survive)
+    // and this bar becomes the one reliable place the correct email
+    // is shown, site-wide rather than contact-page-only.
+    `<a href="mailto:${CONTACT_EMAIL}" class="rz-bar-email" style="position:absolute;` +
+    "top:50%;left:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;" +
+    'gap:6px;color:#e5e0d5;font-size:13px;text-decoration:none;white-space:nowrap;">' +
+    `${CONTACT_EMAIL}</a>` +
     '<button type="button" ' +
     "onclick=\"history.length>1?history.back():location.href='/'\" " +
     'style="position:absolute;top:50%;right:20px;transform:translateY(-50%);' +
@@ -147,6 +185,36 @@ const GA_SNIPPET =
   `<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}` +
   `gtag('js',new Date());gtag('config','${GA_ID}');</script>`;
 
+// Discovered 2026-07-12 (via --dump-dom, checking meta tags specifically
+// for the first time — earlier "MAAT rebrand verified" checks only used
+// curl, which never surfaces this class of bug): the root layout's
+// og:title/og:description/twitter:*/name=description meta tags are
+// <svelte:head>-managed same as the CTA button, so editing their
+// `content` attribute server-side (the .on("meta",...) handler above)
+// gets silently reverted back to "Z App" once hydration runs — Z App's
+// *page-specific* <svelte:head> block additionally injects a SECOND,
+// separate, already-correctly-worded meta description/og:title
+// (class="svelte-skv6c4") alongside the reverted one, so the page ends
+// up with duplicate tags: the wrong one first in DOM order, the right
+// one second. Rather than chase each reactive element individually
+// (already did this twice for a.cta and a.side-mail), this is a
+// general client-side sweep: correct any meta content containing
+// "Z App" after hydration settles. Runs at 0ms (catches pre-hydration),
+// 300ms and 1500ms (catches Svelte's reactive head updates, which
+// don't happen synchronously with the main hydration pass).
+// A fixed-duration poll (tried first: run every 250ms for 5s then stop)
+// was NOT enough — verified in a real browser (not just --dump-dom,
+// which turned out to have its own timing quirks around virtual-time +
+// setTimeout/setInterval) that Z App's <svelte:head> reversion isn't a
+// one-time post-hydration event; it recurred *after* the 5s polling
+// window had already given up. Root trigger unknown (no access to
+// Z App's source), so rather than guess a longer fixed duration, this
+// watches permanently via MutationObserver — negligible cost, and
+// self-terminating per-mutation: once `f()` corrects a tag's content,
+// that same edit fires the observer again, finds nothing left to fix,
+// and no-ops, so it never loops on its own writes.
+const META_FIX_SCRIPT = `<script>(function(){function f(){document.querySelectorAll('meta[content]').forEach(function(m){if(m.content.indexOf('Z App')!==-1){m.content=m.content.split('Z App').join('MAAT');}});}f();new MutationObserver(f).observe(document.head,{subtree:true,attributes:true,attributeFilter:['content'],childList:true});})();</script>`;
+
 // Locale-aware — the /en pages have their own correct lang="en"
 // dir="ltr" markup, so structured data injected there must match
 // (previously this was hardcoded Arabic and would have overridden
@@ -168,7 +236,16 @@ function structuredData(lang) {
         description: isEn
           ? "Reich Elyra is an Egyptian AI, LegalTech and investment platform — the trusted marketplace for professional services."
           : "منصّة الخدمات المهنيّة في مصر — الذكاء الاصطناعي، التقنية القانونية، والاستثمار. Reich Elyra is an Egyptian AI, LegalTech and investment platform.",
-        areaServed: { "@type": "Country", name: "Egypt" }
+        areaServed: { "@type": "Country", name: "Egypt" },
+        email: CONTACT_EMAIL,
+        contactPoint: {
+          "@type": "ContactPoint",
+          email: CONTACT_EMAIL,
+          telephone: "+" + WHATSAPP_NUMBER,
+          contactType: "customer service",
+          areaServed: "EG",
+          availableLanguage: ["Arabic", "English"]
+        }
       },
       {
         "@type": "WebSite",
@@ -252,7 +329,7 @@ export default {
       })
       .on("head", {
         element(el) {
-          el.append(VERIFICATION_META + GA_SNIPPET, { html: true });
+          el.append(VERIFICATION_META + GA_SNIPPET + META_FIX_SCRIPT, { html: true });
         }
       })
       .on("title", {
@@ -273,6 +350,27 @@ export default {
             el.setAttribute("href", FAVICON_HREF);
             el.setAttribute("type", "image/png");
           }
+        }
+      })
+      .on("a.side-mail", {
+        element(el) {
+          // The /contact page's "Direct Mail" link shows the wrong,
+          // placeholder "contact@reichelyra.com". Tried editing its
+          // href/data-cfemail in place first (it's Cloudflare's own
+          // email-obfuscation markup, not obviously Svelte-owned) —
+          // but confirmed with --dump-dom that hydration re-renders
+          // this link from Z App's own reactive contact-info state,
+          // which still holds the old address, reverting both the
+          // href AND the obfuscation entirely (comes back as a plain
+          // mailto: link). Same failure class as the CTA button
+          // above. Hide it — like the CTA hide, a plain style
+          // attribute isn't part of what Svelte's compiled template
+          // binds for this element, so it does survive — and the
+          // correct email is shown instead in the persistent bottom
+          // bar (see backBarHtml), which is a good outcome anyway
+          // since that makes it available on every page, not just
+          // /contact.
+          el.setAttribute("style", "display:none");
         }
       })
       .on("meta", {
@@ -327,7 +425,13 @@ export default {
             // past the opening <body> tag — a style block works
             // regardless of where in the document it appears.
             end.append(
-              `<style>body{padding-bottom:${BAR_HEIGHT}px !important}</style>` +
+              // Centered email in the bottom bar collides with the
+              // WhatsApp/Back buttons on narrow phones (WhatsApp ~110px
+              // + Back ~90px leaves too little room for a centered
+              // ~20-char address) — hide it below 480px rather than let
+              // it overlap; WhatsApp and Back stay reachable either way.
+              `<style>body{padding-bottom:${BAR_HEIGHT}px !important}` +
+                `@media (max-width:480px){.rz-bar-email{display:none !important}}</style>` +
                 loginBadgeHtml(pageLang) +
                 langSwitchHtml(pathname, pageLang) +
                 backBarHtml(pageLang),

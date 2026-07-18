@@ -118,6 +118,21 @@ scripts/
 | DKIM (TXT) | `zmail._domainkey.reichelyra.com` |
 | DMARC (TXT) | `_dmarc.reichelyra.com` → `v=DMARC1; p=none; rua=mailto:info@reichelyra.com; fo=1` — **added this session**, was missing; monitor-only policy, does not block any mail |
 
+## Contact info on the live site (done 2026-07-18)
+
+The `/contact` page's visible email link ("Direct Mail" side-card) showed a placeholder, `contact@reichelyra.com`, never `info@`. User also asked for a WhatsApp number to be added: **+201556700075**.
+
+- **Email link on `/contact`**: tried editing `a.side-mail`'s `href`/Cloudflare-obfuscation attributes in place first — reverts on hydration (confirmed with real-browser JS, not just `--dump-dom`; see "critical hydration testing note" below). Fixed by hiding it (`display:none` — a plain style attribute, not part of Svelte's compiled bindings for this element, so it survives) and showing the correct email in the persistent bottom bar instead (`.rz-bar-email` in `backBarHtml()`), which has the side benefit of making it available on every page, not just `/contact`.
+- **WhatsApp**: new floating button in the same bottom bar, pinned left (mirrors "back" on the right), links to `https://wa.me/201556700075`, styled in WhatsApp's own brand green (`#25D366`) rather than the site gold — deliberate exception for instant recognizability.
+- **JSON-LD**: `Organization.email` + a `ContactPoint` (email, telephone, `contactType: "customer service"`, `areaServed: "EG"`) added to `structuredData()`.
+- **`CONTACT_EMAIL`** / **`WHATSAPP_NUMBER`** constants live at the top of `worker.js` — change both there if either ever changes.
+
+### Critical hydration-testing note (found the same day, widens the lesson above)
+
+Re-auditing the MAAT rebrand while doing this work surfaced a **third distinct failure mode**, on top of the two already documented below (new nodes get wiped; existing reactive elements get their text/attrs reverted): **`curl` and even `chrome --headless --dump-dom` can both under-report reversion**. The root `<head>`'s `description`/`og:title`/`og:description`/`og:image:alt`/`twitter:title`/`twitter:description` meta tags are `<svelte:head>`-managed (same class of bug as the CTA button) — editing their `content` server-side reverts once hydration runs, **and the page also has a second, separate, already-correct set of the same tags** (`class="svelte-skv6c4"`, page-specific, injected by a nested `<svelte:head>` block) — so `curl` shows the fix "working" and even a `--dump-dom` capture can miss the reversion if it captures before Svelte's async head update fires. **Verified reliably only by driving a real browser (Claude's Browser pane / Playwright, not the headless CLI) and reading `document.querySelector(...).content` after an explicit multi-second wait.**
+
+Fixed with a general client-side sweep (`META_FIX_SCRIPT`, injected in `<head>`) rather than chasing each element individually a third time: a `MutationObserver` on `document.head` (attributes + childList, `attributeFilter:['content']`) that re-corrects any meta `content` containing "Z App" whenever it changes — self-terminating per edit (the correction itself fires the observer once more, finds nothing left to fix, no-ops) so it can run for the page's entire lifetime with negligible cost. **A fixed-duration poll (250ms × 20 = 5s) was tried first and was insufficient** — verified in a real browser that the reversion recurred *after* that window had already elapsed; the exact trigger is unknown (no access to Z App's source), which is why the observer approach (react to it whenever it happens) beats guessing a longer timeout.
+
 ## Incident log
 
 **2026-07-11 (final) — User decision: Z App is the main site on reichelyra.com.**
