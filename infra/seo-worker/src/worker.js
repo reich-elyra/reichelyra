@@ -253,8 +253,95 @@ const META_FIX_SCRIPT = `<script>(function(){function f(){document.querySelector
 // churn any client-side navigation produces and re-apply the fixups
 // whenever it happens. childList mutations only (not attributes), so
 // this doesn't retrigger on its own style writes below.
+// Discovered 2026-07-19/20, while verifying the contact form actually
+// delivers: it never talks to a server at all. Its "submit" button
+// (id="c-name"'s <form>) builds a `mailto:` URL client-side and
+// assigns it to `window.location.href` — the visitor's own email
+// client then has to send it. Traced the exact handler in the
+// route's compiled bundle (nodes/10.*.js, minified — Svelte 5
+// output, so exact variable names will change on any Z App rebuild):
+// `window.location.href = \`mailto:${contactPage.mail}?subject=...\``,
+// and `contactPage.mail` is a literal `"contact@reichelyra.com"`
+// baked into the SAME translations bundle (chunks/BS20s6kf.js) that
+// also feeds the "Direct Mail" card hidden above — i.e. the OLD
+// placeholder address, not `info@reichelyra.com`. This lives inside
+// a compiled JS bundle, not an HTML response, so it's completely out
+// of reach for this Worker's HTMLRewriter (only text/html passes
+// through it — see the top of `fetch` below). Left alone, a visitor
+// who completes the mailto send in their own email client sends to
+// an address nothing was ever provisioned to receive.
+// Fix: intercept the click before Svelte's own handler runs, and
+// replicate the mailto build with the correct address. This needs a
+// capture-phase listener on an ANCESTOR of the button (the <form>),
+// not the button itself — capture vs. bubble only changes ordering
+// on ancestors; at the target element itself listeners run in
+// registration order regardless of phase, so a listener attached
+// directly to the button after Svelte's own would still lose the
+// race. `stopImmediatePropagation()` in the capture phase keeps
+// Svelte's handler from ever running, so there's no second, competing
+// `location.href` write. Not attempting to byte-match Z App's own
+// subject/body format (traced but minified/unlabeled, and only
+// reachable by re-deriving it from obfuscated output every time their
+// bundle changes) — this builds a clearer, explicitly-labeled body
+// instead, which is strictly more useful to whoever reads the result.
+const CONTACT_FORM_TEXT = {
+  ar: {
+    name: "الاسم",
+    email: "البريد الإلكتروني",
+    org: "الشركة / الجهة",
+    type: "نوع الخدمة",
+    msg: "الرسالة",
+    subjectPrefix: "طلب تواصل من",
+    success: "✓ فتحنا لك بريدك الإلكتروني برسالة جاهزة — أرسلها وسنعود إليك خلال يوم عمل."
+  },
+  en: {
+    name: "Name",
+    email: "Email",
+    org: "Company",
+    type: "Service Type",
+    msg: "Message",
+    subjectPrefix: "Contact request from",
+    success: "✓ We opened your email client with a ready message — send it and we reply within one business day."
+  }
+};
 const SPA_NAV_FIX_SCRIPT = `<script>(function(){
 function isContactPath(p){return p==="/contact"||p==="/en/contact";}
+function t(){return location.pathname.indexOf("/en")===0?${JSON.stringify(CONTACT_FORM_TEXT.en)}:${JSON.stringify(CONTACT_FORM_TEXT.ar)};}
+function patchContactForm(){
+  var nameEl=document.getElementById('c-name');
+  if(!nameEl)return;
+  var form=nameEl.closest('form');
+  if(!form||form.__rzPatched)return;
+  form.__rzPatched=true;
+  form.addEventListener('click',function(ev){
+    var btn=ev.target.closest('button');
+    if(!btn||!form.contains(btn))return;
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    var L=t();
+    var val=function(id){var el=document.getElementById(id);return el?el.value.trim():'';};
+    var name=val('c-name'),email=val('c-email'),org=val('c-org'),type=val('c-type'),msg=val('c-msg');
+    var subject=encodeURIComponent(L.subjectPrefix+' '+name);
+    var body=encodeURIComponent(
+      L.name+': '+name+'\\n'+
+      L.email+': '+email+'\\n'+
+      L.org+': '+(org||'-')+'\\n'+
+      L.type+': '+type+'\\n\\n'+
+      L.msg+':\\n'+msg
+    );
+    window.location.href='mailto:${CONTACT_EMAIL}?subject='+subject+'&body='+body;
+    var note=form.querySelector('.rz-form-success');
+    if(!note){
+      note=document.createElement('p');
+      note.className='rz-form-success';
+      note.style.cssText='margin-top:12px;color:#c9a84c;font-size:14px;';
+      var foot=btn.closest('.form-foot')||btn.parentElement;
+      foot.parentElement.insertBefore(note,foot.nextSibling);
+    }
+    note.textContent=L.success;
+    note.style.display='block';
+  },true);
+}
 function f(){
   document.querySelectorAll('a.side-mail,a.cta').forEach(function(el){
     if(el.getAttribute('style')!=='display:none')el.setAttribute('style','display:none');
@@ -264,6 +351,7 @@ function f(){
   var em=document.querySelector('.rz-bar-email');
   if(wa)wa.style.display=isContact?'inline-flex':'none';
   if(em)em.style.display=isContact?'inline-flex':'none';
+  patchContactForm();
 }
 f();
 var pending=false;
