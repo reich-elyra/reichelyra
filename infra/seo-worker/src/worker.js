@@ -118,42 +118,61 @@ function loginBadgeHtml(lang) {
   );
 }
 
-function backBarHtml(lang) {
+// 2026-07-19 (explicit user request): WhatsApp + email were originally
+// site-wide in this bar (see the long comment they replaced, kept in
+// git history) — user asked for them to appear on /contact ONLY, not
+// every page. `isContactPage` gates that half of the bar; "back" stays
+// site-wide since that request only named the button + email address.
+function backBarHtml(lang, isContactPage) {
   const t = I18N[lang];
-  return (
-    '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
-    BAR_HEIGHT +
-    "px;z-index:99999;background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
-    'box-shadow:0 -8px 24px rgba(0,0,0,0.45);">' +
-    // WhatsApp — pinned to the physical left (mirrors "back" on the
-    // right). Uses WhatsApp's own brand green rather than the site's
-    // gold accent: this exact icon+color combination is what makes it
-    // instantly recognizable, which matters more here than palette
-    // consistency for one universally-recognized button.
-    `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener noreferrer" ` +
+  // Both elements are always rendered (never omitted) — display is
+  // baked in from isContactPage for the first paint, then kept in
+  // sync client-side by SPA_NAV_FIX_SCRIPT as the visitor navigates
+  // between pages without a fresh HTML request (see that script's
+  // comment for why: omitting them entirely on non-contact pages, as
+  // an earlier version of this function did, left nothing in the DOM
+  // for that client-side script to reveal when navigating INTO
+  // /contact via an in-app link — the single most common way a real
+  // visitor would ever reach this bar's WhatsApp/email content).
+  const waDisplay = isContactPage ? "inline-flex" : "none";
+  const emDisplay = isContactPage ? "inline-flex" : "none";
+  const whatsappHtml =
+    // Pinned to the physical left (mirrors "back" on the right). Uses
+    // WhatsApp's own brand green rather than the site's gold accent:
+    // this exact icon+color combination is what makes it instantly
+    // recognizable, which matters more here than palette consistency
+    // for one universally-recognized button.
+    `<a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" rel="noopener noreferrer" class="rz-bar-whatsapp" ` +
     'style="position:absolute;top:50%;left:20px;transform:translateY(-50%);' +
-    "display:inline-flex;align-items:center;gap:8px;" +
+    `display:${waDisplay};align-items:center;gap:8px;` +
     "padding:10px 18px;border-radius:999px;border:none;" +
     'background:#25D366;color:#03150c;font-size:14px;font-weight:700;text-decoration:none;">' +
     '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">' +
     '<path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.9-4.45 9.9-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2zm5.8 14.16c-.24.68-1.4 1.3-1.93 1.38-.5.08-1.12.11-1.8-.11-.42-.13-.96-.31-1.65-.61-2.9-1.25-4.8-4.17-4.94-4.36-.14-.19-1.18-1.57-1.18-3 0-1.42.75-2.12 1.01-2.41.27-.29.58-.36.78-.36.19 0 .39 0 .56.01.18.01.42-.07.65.5.24.58.82 2 .89 2.15.07.14.12.32.02.51-.09.19-.14.31-.28.48-.14.16-.29.36-.42.49-.14.14-.28.29-.12.57.16.29.71 1.17 1.53 1.9 1.05.94 1.94 1.23 2.22 1.37.28.14.44.12.61-.07.16-.19.68-.79.87-1.06.18-.27.37-.22.62-.13.26.09 1.63.77 1.91.91.28.14.47.21.53.33.07.12.07.68-.17 1.36z"/>' +
     "</svg>" +
-    `<span>${t.whatsapp}</span></a>` +
-    // Email — centered. This exists here (not just as a hidden-and-
-    // replaced element on the /contact page itself) because the
-    // /contact page's own "side-mail" link is driven by Z App's
+    `<span>${t.whatsapp}</span></a>`;
+  const emailHtml =
+    // Exists here rather than as an edit of the /contact page's own
+    // "side-mail" link because that link is driven by Z App's
     // reactive state: editing its href/data-cfemail survives in curl
     // output but reverts to the old "contact@reichelyra.com" once
     // hydration runs (confirmed with --dump-dom — same class of bug
     // as the CTA button, see the top-of-file comment). The old link
-    // is hidden below (a.side-mail { display:none }, which — like
-    // the CTA hide — is a non-reactive attribute and does survive)
-    // and this bar becomes the one reliable place the correct email
-    // is shown, site-wide rather than contact-page-only.
+    // is hidden separately (a.side-mail { display:none }, which —
+    // like the CTA hide — is a non-reactive attribute and does
+    // survive) and this bar is the one reliable place the correct
+    // email is shown.
     `<a href="mailto:${CONTACT_EMAIL}" class="rz-bar-email" style="position:absolute;` +
-    "top:50%;left:50%;transform:translate(-50%,-50%);display:inline-flex;align-items:center;" +
+    `top:50%;left:50%;transform:translate(-50%,-50%);display:${emDisplay};align-items:center;` +
     'gap:6px;color:#e5e0d5;font-size:13px;text-decoration:none;white-space:nowrap;">' +
-    `${CONTACT_EMAIL}</a>` +
+    `${CONTACT_EMAIL}</a>`;
+  return (
+    '<div style="position:fixed;bottom:0;left:0;right:0;height:' +
+    BAR_HEIGHT +
+    "px;z-index:99999;background:#030712;border-top:1px solid rgba(201,168,76,0.25);" +
+    'box-shadow:0 -8px 24px rgba(0,0,0,0.45);">' +
+    whatsappHtml +
+    emailHtml +
     '<button type="button" ' +
     "onclick=\"history.length>1?history.back():location.href='/'\" " +
     'style="position:absolute;top:50%;right:20px;transform:translateY(-50%);' +
@@ -214,6 +233,46 @@ const GA_SNIPPET =
 // that same edit fires the observer again, finds nothing left to fix,
 // and no-ops, so it never loops on its own writes.
 const META_FIX_SCRIPT = `<script>(function(){function f(){document.querySelectorAll('meta[content]').forEach(function(m){if(m.content.indexOf('Z App')!==-1){m.content=m.content.split('Z App').join('MAAT');}});}f();new MutationObserver(f).observe(document.head,{subtree:true,attributes:true,attributeFilter:['content'],childList:true});})();</script>`;
+
+// Discovered 2026-07-19: this Worker only ever runs on the *first*
+// HTML response a visitor's browser requests. SvelteKit's client-side
+// router intercepts clicks on internal links and re-renders routes by
+// fetching only route data, never a fresh HTML document — so every
+// fix above (hidden a.side-mail / a.cta, the contact-only WhatsApp+
+// email bar) applies only to whichever page a visitor happens to land
+// on first. Verified directly: in a clean browser tab (no cache),
+// loading "/" then clicking the in-app "تواصل"/Contact nav link
+// reproduced the exact pre-fix state on /contact — a.side-mail back
+// to visible with a plain, non-obfuscated `mailto:contact@reichelyra.com`
+// href, because Svelte mounted that page's markup fresh, client-side,
+// completely bypassing this Worker (and, incidentally, Cloudflare's own
+// email-obfuscation feature — that's edge-injected too and has the same
+// blind spot). Same fix strategy as META_FIX_SCRIPT above: rather than
+// hooking SvelteKit's specific router internals (undocumented, no
+// source access, and could change on any redeploy), watch for the DOM
+// churn any client-side navigation produces and re-apply the fixups
+// whenever it happens. childList mutations only (not attributes), so
+// this doesn't retrigger on its own style writes below.
+const SPA_NAV_FIX_SCRIPT = `<script>(function(){
+function isContactPath(p){return p==="/contact"||p==="/en/contact";}
+function f(){
+  document.querySelectorAll('a.side-mail,a.cta').forEach(function(el){
+    if(el.getAttribute('style')!=='display:none')el.setAttribute('style','display:none');
+  });
+  var isContact=isContactPath(location.pathname);
+  var wa=document.querySelector('.rz-bar-whatsapp');
+  var em=document.querySelector('.rz-bar-email');
+  if(wa)wa.style.display=isContact?'inline-flex':'none';
+  if(em)em.style.display=isContact?'inline-flex':'none';
+}
+f();
+var pending=false;
+new MutationObserver(function(){
+  if(pending)return;
+  pending=true;
+  setTimeout(function(){pending=false;f();},100);
+}).observe(document.documentElement,{childList:true,subtree:true});
+})();</script>`;
 
 // Locale-aware — the /en pages have their own correct lang="en"
 // dir="ltr" markup, so structured data injected there must match
@@ -304,6 +363,7 @@ export default {
     withGaCsp(response.headers);
 
     const pathname = new URL(request.url).pathname;
+    const isContactPage = pathname === "/contact" || pathname === "/en/contact";
     let pageLang = "ar"; // overwritten by the <html lang="..."> handler below, which
     // fires before everything else since <html> opens the document.
 
@@ -329,7 +389,10 @@ export default {
       })
       .on("head", {
         element(el) {
-          el.append(VERIFICATION_META + GA_SNIPPET + META_FIX_SCRIPT, { html: true });
+          el.append(
+            VERIFICATION_META + GA_SNIPPET + META_FIX_SCRIPT + SPA_NAV_FIX_SCRIPT,
+            { html: true }
+          );
         }
       })
       .on("title", {
@@ -366,10 +429,9 @@ export default {
           // above. Hide it — like the CTA hide, a plain style
           // attribute isn't part of what Svelte's compiled template
           // binds for this element, so it does survive — and the
-          // correct email is shown instead in the persistent bottom
-          // bar (see backBarHtml), which is a good outcome anyway
-          // since that makes it available on every page, not just
-          // /contact.
+          // correct email is shown instead in the bottom bar (see
+          // backBarHtml), restricted to this page only per 2026-07-19
+          // request.
           el.setAttribute("style", "display:none");
         }
       })
@@ -434,7 +496,7 @@ export default {
                 `@media (max-width:480px){.rz-bar-email{display:none !important}}</style>` +
                 loginBadgeHtml(pageLang) +
                 langSwitchHtml(pathname, pageLang) +
-                backBarHtml(pageLang),
+                backBarHtml(pageLang, isContactPage),
               { html: true }
             );
           }
