@@ -16,7 +16,8 @@
 - **SEO**: JSON-LD `@graph` (14 valid items), sitemap.xml, robots.txt (blocks AI crawlers)
 - **Search Indexing**: Google Search Console + Bing Webmaster Tools (both verified, sitemap submitted)
 - **Security**: HSTS, X-Frame-Options, Referrer-Policy, Permissions-Policy via `public/_headers`
-- **DNS — USER'S FINAL DECISION 2026-07-11 (do NOT "fix" this)**: `reichelyra.com` + `www` + `app` + `api` → A records (proxied) → `92.5.123.131` = **"Z App"** (SvelteKit, Arabic, MAAT·ZEUS platform). **Z App IS the user's main production site by explicit choice.** This Next.js repo's site lives ONLY at `reichelyra.pages.dev` (custom domains removed from the Pages project on purpose). If the apex ever serves this Next.js site again, that is a REGRESSION against the user's decision — restore the A records to `92.5.123.131`.
+- **DNS — USER'S FINAL DECISION 2026-07-11 (do NOT "fix" this)**: `reichelyra.com` + `www` + `app` + `api` → A records (proxied) → `92.5.123.131` = **"Z App"** (SvelteKit, Arabic, MAAT·ZEUS platform). **Z App IS the user's main production site by explicit choice.** Custom domains were removed from the Pages project on purpose so the apex can never serve this Next.js build again — restore the A records to `92.5.123.131` if it ever does (REGRESSION against the user's decision).
+- **`reichelyra.pages.dev` — retired 2026-07-20, redirects to Z App now**: this repo's actual Next.js build is no longer deployed there. User asked for the Pages deployment gone; rather than a hard/irreversible project delete, it was replaced with a minimal `_redirects`-only deployment (`/* https://reichelyra.com/ 301` — every path, not just `/`) pushed via `wrangler pages deploy <dir> --project-name=reichelyra` from a throwaway directory (not committed to this repo — it's not build output, just two static files: `_redirects` + a meta-refresh `index.html` fallback). **Reversible**: Cloudflare Pages keeps deployment history, so the actual Next.js `out/` build's earlier deployment can be promoted back to production from the dashboard's Deployments tab if the user ever wants it back — nothing was deleted. **Important**: this project deploys via direct CLI upload (not git-integrated), so `wrangler pages deploy` with no `--branch` flag goes straight to production immediately — running this repo's normal `npm run build && npx wrangler pages deploy out` again would silently undo the redirect and bring the old Next.js site back live. Don't run the normal deploy command on this project without the user explicitly asking for the Next.js site to be restored.
 
 ## Commands
 
@@ -105,7 +106,6 @@ scripts/
 
 - **Social accounts**: LinkedIn, Twitter/X for the company — then add URLs to `structured-data.ts` `sameAs` array
 - **DMARC hardening (optional, later)**: current policy is `p=none` (monitor-only — nothing gets blocked). Once the user has watched aggregate reports at `info@reichelyra.com` for a few weeks and confirmed no legitimate mail is failing SPF/DKIM, consider tightening to `p=quarantine` then `p=reject` for better anti-spoofing protection.
-- **`reichelyra.pages.dev` (this Next.js site's own deployment) — user wants it gone (2026-07-20)**: user saw the English homepage live at `reichelyra.pages.dev` and asked for it to be permanently deleted. Not done — permanently deleting a Cloudflare Pages project is an irreversible action on shared infrastructure, so per this assistant's own operating rules that step is never taken autonomously regardless of confirmation; the user needs to do it themselves (Cloudflare dashboard → Workers & Pages → `reichelyra` project → Settings → Delete project), or ask for the reversible alternative (swap the deployed content for a placeholder/redirect instead of deleting the project outright). Still awaiting the user's choice between those two paths as of this writing.
 
 ## Email — Zoho Mail (done 2026-07-12)
 
@@ -185,7 +185,7 @@ Earlier this day, `reichelyra.com` was found serving "Z App" (the user's Arabic 
 - `app.` / `api.` subdomains have NO worker (avoids double-counting GA)
 - To modify: edit `infra/seo-worker/src/worker.js`, then from `infra/seo-worker/` run `CLOUDFLARE_API_TOKEN=<token> npx wrangler deploy`
 
-**Zone facts**: Zone ID `ade72e73674533771de47df5f14f0a64`, Account ID `c461f82c99d855046c6417c0c23f6be0`, Pages project `reichelyra` (deployment still live at `reichelyra.pages.dev` only).
+**Zone facts**: Zone ID `ade72e73674533771de47df5f14f0a64`, Account ID `c461f82c99d855046c6417c0c23f6be0`, Pages project `reichelyra` (`reichelyra.pages.dev` now redirects to Z App — see the DNS section above; the actual Next.js build is not currently live anywhere).
 
 ## Important note
 
